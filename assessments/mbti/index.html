@@ -1,1 +1,43 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>MBTI Personality Assessment</title>\n    <style>\n        body { font-family: Arial, sans-serif; }\n        .container { max-width: 600px; margin: auto; padding: 20px; }\n        .question { margin: 20px 0; }\n        .result { margin-top: 30px; font-weight: bold; }\n    </style>\n</head>\n<body>\n    <div class="container">\n        <h1>MBTI Personality Assessment</h1>\n        <form id="assessmentForm">\n            <div class="question">\n                <label>1. Do you prefer to focus on the outer world or on your own inner world?</label><br>\n                <input type="radio" name="q1" value="E">E (Outer World)\n                <input type="radio" name="q1" value="I">I (Inner World)\n            </div>\n            <div class="question">\n                <label>2. Do you prefer to take in information through your senses or your intuition?</label><br>\n                <input type="radio" name="q2" value="S">S (Senses)\n                <input type="radio" name="q2" value="N">N (Intuition)\n            </div>\n            <div class="question">\n                <label>3. When making decisions, do you rely more on your head or your heart?</label><br>\n                <input type="radio" name="q3" value="T">T (Head)\n                <input type="radio" name="q3" value="F">F (Heart)\n            </div>\n            <div class="question">\n                <label>4. Do you prefer a structured lifestyle or a flexible lifestyle?</label><br>\n                <input type="radio" name="q4" value="J">J (Structured)\n                <input type="radio" name="q4" value="P">P (Flexible)\n            </div>\n            <button type="button" onclick="calculateResult()">Submit</button>\n        </form>\n        <div class="result" id="result" style="display:none;"></div>\n    </div>\n    <script>\n        function calculateResult() {\n            const form = document.forms['assessmentForm'];\n            let results = {E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0};\n            for(let i = 1; i <= 4; i++) {\n                const answer = form['q' + i].value;\n                if(answer) {\n                    results[answer] += 1;\n                }\n            }\n            const type = (results.E > results.I ? 'E' : 'I') + (results.S > results.N ? 'S' : 'N') + (results.T > results.F ? 'T' : 'F') + (results.J > results.P ? 'J' : 'P');\n            document.getElementById('result').innerText = 'Your MBTI Type is: ' + type;\n            document.getElementById('result').style.display = 'block';\n        }\n    </script>\n</body>\n</html>\n
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI Personality Assessment</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: auto; padding: 20px; background: white; border-radius: 5px; }
+        h1 { text-align: center; }
+        .question { margin: 20px 0; }
+        .button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MBTI Personality Assessment</h1>
+        <form id="mbti-form">
+            <!-- Questions will go here -->
+            <div class="question">
+                <label for="q1">1. I prefer to work in a team rather than alone.</label><br>
+                <input type="radio" name="q1" value="A"> Agree<br>
+                <input type="radio" name="q1" value="B"> Disagree
+            </div>
+            <!-- Repeat for all 20 questions -->
+            <div class="question">
+                <label for="q20">20. I enjoy solving problems.</label><br>
+                <input type="radio" name="q20" value="A"> Agree<br>
+                <input type="radio" name="q20" value="B"> Disagree
+            </div>
+            <button type="submit" class="button">Submit</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('mbti-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Calculate the MBTI result based on answers
+            // Display a corresponding personality type
+        });
+    </script>
+</body>
+</html>
