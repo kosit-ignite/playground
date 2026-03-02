@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ignite The Consultant - Talent Assessment</title>
+    <style>
+        /* --- CORE STYLING (Universal - No Dependencies) --- */
+        :root {
+            --primary: #ea580c; /* Orange-600 */
+            --primary-hover: #c2410c;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-600: #475569;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            --emerald: #10b981;
+            --rose: #e11d48;
+            --blue: #3b82f6;
+            --white: #ffffff;
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body { margin: 0; font-family: var(--font-main); background-color: var(--slate-50); color: var(--slate-900); line-height: 1.6; }
+        
+        /* Layout */
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .w-full { width: 100%; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .text-center { text-align: center; }
+        .grid { display: grid; gap: 20px; }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+
+        /* Navigation */
+        nav { background: var(--white); border-bottom: 1px solid var(--slate-200); padding: 1rem; position: sticky; top: 0; z-index: 50; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; }
+        .logo-box { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo-icon { width: 40px; height: 40px; background: var(--slate-900); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+        .brand-text { display: flex; flex-direction: column; line-height: 1; }
+        .brand-title { font-weight: 900; font-size: 1.1rem; }
+        .brand-subtitle { font-size: 0.65rem; font-weight: 700; color: var(--slate-600); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Buttons */
+        .btn { padding: 12px 24px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 1rem; }
+        .btn-primary { background-color: var(--primary); color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.3); }
+        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        .btn-secondary { background-color: var(--white); border: 1px solid var(--slate-200); color: var(--slate-600); }
+        .btn-secondary:hover { background-color: var(--slate-50); color: var(--slate-900); }
+        .btn-dark { background-color: var(--slate-900); color: white; }
+        .btn-sm { padding: 8px 16px; font-size: 0.875rem; border-radius: 20px; }
+
+        /* Components */
+        .card { background: var(--white); border-radius: 12px; border: 1px solid var(--slate-200); padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .screen { animation: fadeIn 0.5s ease-out; }
+        .section-title { font-size: 1.5rem; font-weight: 800; color: var(--slate-900); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; border-left: 4px solid var(--primary); padding-left: 15px; }
+        
+        /* Test Screen Styles */
+        .progress-bar { position: sticky; top: 73px; background: rgba(248,250,252,0.95); padding: 15px 0; z-index: 40; border-bottom: 1px solid var(--slate-200); margin-bottom: 30px; backdrop-filter: blur(4px); }
+        .progress-track { height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s ease; }
+        
+        .question-card { margin-bottom: 20px; transition: transform 0.2s; }
+        .question-card:hover { transform: translateY(-2px); border-color: #fdba74; }
+        .scale-options { display: flex; gap: 10px; justify-content: center; min-width: 250px; }
+        .scale-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--slate-200); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .scale-btn.selected { background: var(--primary); border-color: var(--primary); color: white; transform: scale(1.15); }
+        .dot { background: currentColor; border-radius: 50%; }
+
+        /* Results Styles */
+        .result-header { background: var(--slate-900); color: white; border-radius: 16px; padding: 3rem; border-top: 4px solid var(--primary); margin-bottom: 2rem; }
+        .result-header h1 { font-size: 4rem; margin: 0; line-height: 1; letter-spacing: -2px; }
+        .archetype-tag { background: var(--primary); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-block; margin-bottom: 10px; }
+        
+        /* Dashboard Grid */
+        .dashboard-section { background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--slate-200); margin-bottom: 20px; }
+        
+        /* Stack Cards */
+        .stack-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .stack-card { border: 1px solid var(--slate-200); border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: var(--slate-50); transition: transform 0.2s; }
+        .stack-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .stack-role { font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-600); }
+        .stack-icon { width: 40px; height: 40px; border-radius: 8px; background: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: var(--slate-800); border: 1px solid var(--slate-200); margin-bottom: 5px; }
+        .stack-main { color: var(--primary); background: rgba(234, 88, 12, 0.05); border-color: #fdba74; }
+        .stack-main .stack-icon { background: var(--primary); color: white; border: none; }
+        .stack-desc { font-size: 0.85rem; color: var(--slate-600); margin: 0; line-height: 1.5; }
+
+        /* Career & Skills */
+        .career-card { background: var(--slate-50); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--slate-300); }
+        .career-title { font-weight: 700; font-size: 1.1rem; color: var(--slate-900); margin-bottom: 0.5rem; }
+        .skill-tag { display: inline-block; background: white; border: 1px solid var(--slate-200); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: var(--slate-600); margin-right: 5px; margin-top: 5px; }
+        .advice-box { background: #eff6ff; border: 1px solid #dbeafe; padding: 1.5rem; border-radius: 8px; color: #1e40af; font-size: 0.95rem; margin-top: 1rem; display: flex; gap: 15px; align-items: start; }
+
+        /* Disclaimer */
+        .disclaimer-box { margin-top: 40px; padding: 20px; background: var(--slate-100); border-radius: 8px; font-size: 0.75rem; color: var(--slate-600); text-align: center; border: 1px solid var(--slate-200); }
+
+        /* Print Styles */
+        @media print {
+            nav, .btn { display: none !important; }
+            .container { padding: 0; margin: 0; max-width: 100%; }
+            .result-header { border-radius: 0; page-break-inside: avoid; color: black !important; background: white !important; border: 1px solid #000; }
+            .result-header h1 { color: black !important; }
+            .archetype-tag { border: 1px solid #000; color: black !important; background: transparent !important; }
+            .dashboard-section { page-break-inside: avoid; border: 1px solid #ccc; box-shadow: none; }
+            body { background: white; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .question-row { flex-direction: column; gap: 15px; } .result-header h1 { font-size: 3rem; } .grid-2 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="nav-content">
+            <div class="logo-box" onclick="app.go('intro')">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">IGNITE</span>
+                    <span class="brand-subtitle">The Consultant</span>
+                </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="langBtn" onclick="app.toggleLang()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span id="langText">ENGLISH</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- CONTAINER -->
+    <div class="container">
+        
+        <!-- 1. INTRO -->
+        <div id="intro-screen" class="screen flex flex-col items-center text-center" style="padding: 40px 0;">
+            <div class="hero-icon" style="width: 80px; height: 80px; background: var(--slate-900); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 20px;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <h1 id="intro-title" style="font-size: 2.5rem; font-weight: 900; margin: 0 0 10px 0;">Talent Archetype Assessment</h1>
+            <p id="intro-sub" style="font-size: 1.1rem; color: var(--slate-600); max-width: 600px;">Scientific typology assessment for professional potential.</p>
+            <button class="btn btn-primary" onclick="app.go('consent')" style="margin-top: 40px; padding: 15px 40px; font-size: 1.1rem;"><span id="start-btn">Begin Assessment</span></button>
+        </div>
+
+        <!-- 2. CONSENT -->
+        <div id="consent-screen" class="screen hidden" style="max-width: 700px; margin: 40px auto;">
+            <div class="card">
+                <h2 id="consent-title" style="margin-top:0;">Data Privacy & Consent</h2>
+                <div style="background: var(--slate-50); padding: 15px; border-radius: 8px; font-size: 0.9rem; color: var(--slate-600); margin-bottom: 20px;">
+                    <p id="consent-pdpa" style="font-weight:bold; color:var(--slate-900);">Notice per Thailand PDPA</p>
+                    <p id="consent-text">This tool processes psychological data locally. No data leaves your device.</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button id="consent-accept" class="btn btn-primary w-full justify-center" onclick="app.go('test')">I Consent & Proceed</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. TEST -->
+        <div id="test-screen" class="screen hidden" style="max-width: 900px; margin: 0 auto; padding-bottom: 50px;">
+            <div class="progress-bar">
+                <div class="flex justify-between" style="font-size:0.8rem; font-weight:700; color:var(--slate-600);">
+                    <span id="progress-label">Progress</span><span id="progress-val">0%</span>
+                </div>
+                <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+            </div>
+            <div id="questions-container"></div>
+            <div class="text-center mt-4">
+                <button id="generate-btn" class="btn btn-dark" onclick="app.calculate()" disabled style="opacity: 0.5;">
+                    <span id="analyze-label">Analyze Profile</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. RESULTS (Unified Dashboard) -->
+        <div id="results-screen" class="screen hidden">
+            <!-- Header -->
+            <div class="result-header">
+                <span class="archetype-tag">Ignite Profile</span>
+                <h1 id="res-type">INTJ</h1>
+                <h2 id="res-alias" style="font-size: 2rem; color: var(--slate-200); margin-top: 5px;">The Mastermind</h2>
+                <p id="res-tagline" style="font-size: 1.2rem; font-style: italic; color: #fdba74; margin-top: 20px;">"Strategic, logical, and innovative."</p>
+            </div>
+
+            <!-- Section 1: Analysis -->
+            <div class="dashboard-section">
+                <div class="section-title">
+                    <span id="h-exec">Professional Analysis</span>
+                </div>
+                <div class="grid grid-2">
+                    <div>
+                        <p id="res-desc" style="color: var(--slate-600); line-height: 1.8;">Analysis...</p>
+                    </div>
+                    <div class="flex flex-col gap-4">
+                        <div style="background:var(--slate-50); padding:20px; border-radius:8px;">
+                            <h4 id="h-str" style="margin-top:0; color:var(--emerald); font-size:0.9rem; text-transform:uppercase;">Core Competencies</h4>
+                            <ul id="res-strengths" style="padding-left: 20px; color: var(--slate-600); margin-bottom:0;"></ul>
+                        </div>
+                        <div style="background:var(--slate-50); padding:20px; border-radius:8px;">
+                            <h4 id="h-blind" style="margin-top:0; color:var(--rose); font-size:0.9rem; text-transform:uppercase;">Development Areas</h4>
+                            <ul id="res-blindspots" style="padding-left: 20px; color: var(--slate-600); margin-bottom:0;"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Cognitive Stack -->
+            <div class="dashboard-section">
+                <div class="section-title">
+                    <span id="h-stack">Functional Stack Architecture</span>
+                </div>
+                <p id="stack-intro" style="color:var(--slate-600); margin-bottom: 25px;">Your cognitive architecture dictates how you process information.</p>
+                <div id="res-stack-container" class="stack-container"></div>
+            </div>
+
+            <!-- Section 3: Career & Growth -->
+            <div class="dashboard-section">
+                <div class="section-title">
+                    <span id="h-traj">Career & Growth</span>
+                </div>
+                
+                <div class="grid grid-2">
+                    <!-- Career Paths -->
+                    <div>
+                        <h4 style="margin-top:0; color:var(--slate-800);">Recommended Paths</h4>
+                        <div id="res-careers" class="flex flex-col gap-4"></div>
+                    </div>
+                    
+                    <!-- Growth Advice -->
+                    <div>
+                        <h4 style="margin-top:0; color:var(--slate-800);">Professional Growth</h4>
+                        <div class="advice-box">
+                            <svg style="width:24px; height:24px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                            <div>
+                                <strong id="advice-title" style="display:block; margin-bottom:5px;">Ignite Advice</strong>
+                                <span id="res-advice">Advice goes here...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="disclaimer-box">
+                <p id="disclaimer-text">Disclaimer: This assessment provides general insights based on psychological theory. It is not professional career or psychological advice. Ignite The Consultant Co., Ltd. is not responsible for decisions made based on these results.</p>
+            </div>
+
+            <div class="flex justify-center gap-4" style="margin-top: 40px;">
+                <button class="btn btn-dark" onclick="window.print()">Save PDF</button>
+                <button class="btn btn-secondary" onclick="app.go('intro')">Retake</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* --- DATA & LOGIC --- */
+
+        const UI_TEXT = {
+            en: {
+                introTitle: "Talent Archetype Assessment", introSub: "Uncover your cognitive operating system and professional potential.",
+                startBtn: "Begin Assessment", consentTitle: "Data Privacy & Consent", consentPDPA: "Notice per Thailand PDPA",
+                consentText: "This tool processes psychological data locally. No data leaves your device. By proceeding, you consent to this processing.",
+                acceptBtn: "I Consent & Proceed", cancelBtn: "Cancel", prog: "Progress", analyzeBtn: "Analyze Profile",
+                hExec: "Professional Analysis", hStr: "Core Competencies", hBlind: "Development Areas", hTraj: "Career & Growth",
+                hStack: "Cognitive Architecture", stackIntro: "Your cognitive architecture dictates how you process information and make decisions.",
+                disclaimer: "Disclaimer: This assessment provides general insights based on psychological theory. It is not professional career or psychological advice. Ignite The Consultant Co., Ltd. is not responsible for decisions made based on these results."
+            },
+            th: {
+                introTitle: "แบบประเมินสไตล์การทำงานและศักยภาพ", introSub: "ค้นพบกระบวนการคิดและศักยภาพในตัวท่านเพื่อการพัฒนาตนเอง",
+                startBtn: "เริ่มต้นการประเมิน", consentTitle: "ข้อตกลง PDPA", consentPDPA: "ประกาศตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล (PDPA)",
+                consentText: "ระบบประมวลผลข้อมูลจิตวิทยาบนอุปกรณ์ของท่าน 100% ไม่มีการส่งออกข้อมูล การกดตกลงถือเป็นการยินยอมให้ประมวลผล",
+                acceptBtn: "ข้าพเจ้ายินยอมและดำเนินการ", cancelBtn: "ยกเลิก", prog: "ความคืบหน้า", analyzeBtn: "ประมวลผลโปรไฟล์",
+                hExec: "บทวิเคราะห์ศักยภาพ", hStr: "จุดแข็งและสมรรถนะหลัก", hBlind: "พื้นที่สำหรับการพัฒนา", hTraj: "เส้นทางอาชีพและการเติบโต",
+                hStack: "สถาปัตยกรรมโครงสร้างความคิด", stackIntro: "โครงสร้างทางปัญญาของท่านกำหนดวิธีการประมวลผลข้อมูลและการตัดสินใจ",
+                disclaimer: "ข้อจำกัดความรับผิดชอบ: แบบประเมินนี้ให้ข้อมูลเชิงลึกทั่วไปตามทฤษฎีทางจิตวิทยา ไม่ใช่คำแนะนำทางวิชาชีพด้านอาชีพหรือจิตวิทยา บริษัท อิกไนต์ เดอะ คอนซัลแตนท์ จำกัด ไม่รับผิดชอบต่อการตัดสินใจใดๆ ที่เกิดขึ้นจากผลลัพธ์นี้"
+            }
+        };
+
+        const QUESTIONS = [
+            {id:1, d:'EI', l:{en:'Talkative', th:'ชอบการสนทนา'}, r:{en:'Quiet', th:'สงวนท่าที'}},
+            {id:2, d:'EI', l:{en:'Seek attention', th:'ชอบเป็นจุดสนใจ'}, r:{en:'Avoid attention', th:'เลี่ยงจุดสนใจ'}},
+            {id:3, d:'EI', l:{en:'Energy from groups', th:'พลังจากกลุ่มคน'}, r:{en:'Energy from solitude', th:'พลังจากสันโดษ'}},
+            {id:4, d:'EI', l:{en:'Act first', th:'ทำก่อนคิด'}, r:{en:'Think first', th:'คิดก่อนทำ'}},
+            {id:5, d:'EI', l:{en:'Open to new people', th:'เปิดเผย'}, r:{en:'Private', th:'โลกส่วนตัวสูง'}},
+            {id:6, d:'SN', l:{en:'Realistic', th:'มองโลกตามจริง'}, r:{en:'Imaginative', th:'ช่างจินตนาการ'}},
+            {id:7, d:'SN', l:{en:'Facts', th:'ข้อเท็จจริง'}, r:{en:'Possibilities', th:'ความเป็นไปได้'}},
+            {id:8, d:'SN', l:{en:'Practical', th:'ปฏิบัติจริง'}, r:{en:'Innovative', th:'สร้างสรรค์'}},
+            {id:9, d:'SN', l:{en:'Present', th:'ปัจจุบัน'}, r:{en:'Future', th:'อนาคต'}},
+            {id:10, d:'SN', l:{en:'Literal', th:'ตามตัวอักษร'}, r:{en:'Figurative', th:'เปรียบเปรย'}},
+            {id:11, d:'TF', l:{en:'Logic-driven', th:'ใช้ตรรกะ'}, r:{en:'Value-driven', th:'ใช้ค่านิยม'}},
+            {id:12, d:'TF', l:{en:'Critique', th:'วิจารณ์ตรงๆ'}, r:{en:'Harmony', th:'ถนอมน้ำใจ'}},
+            {id:13, d:'TF', l:{en:'Firmness', th:'เด็ดขาด'}, r:{en:'Benevolence', th:'เมตตา'} },
+            {id:14, d:'TF', l:{en:'Head', th:'สมอง'}, r:{en:'Heart', th:'หัวใจ'} },
+            {id:15, d:'TF', l:{en:'Justice', th:'ยุติธรรม'}, r:{en:'Mercy', th:'เห็นใจ'} },
+            {id:16, d:'JP', l:{en:'Structured', th:'มีแบบแผน'}, r:{en:'Flexible', th:'ยืดหยุ่น'} },
+            {id:17, d:'JP', l:{en:'Schedules', th:'ตารางเวลา'}, r:{en:'Spontaneity', th:'ฉับพลัน'} },
+            {id:18, d:'JP', l:{en:'Plan ahead', th:'วางแผนล่วงหน้า'}, r:{en:'Wait and see', th:'รอดูสถานการณ์'} },
+            {id:19, d:'JP', l:{en:'Finish early', th:'เสร็จก่อนกำหนด'}, r:{en:'Pressure', th:'ไฟลนก้น'} },
+            {id:20, d:'JP', l:{en:'Rules', th:'กฎระเบียบ'}, r:{en:'Options', th:'ทางเลือก'} }
+        ];
+
+        // FULL CONTENT FOR ALL 16 TYPES
+        const PROFILES = {
+            'ISTJ': { 
+                alias: { en: 'The Inspector', th: 'นักตรวจสอบ' },
+                desc: { en: "Responsible, sincere, and analytical. Values tradition and loyalty in their work.", th: "มีความรับผิดชอบ ซื่อสัตย์ และยึดมั่นในหลักการทำงาน" },
+                str: { en: ["Reliability", "Detail-oriented", "Logical"], th: ["ความน่าเชื่อถือ", "ใส่ใจรายละเอียด", "มีตรรกะ"] },
+                weak: { en: ["Stubborn", "Insensitive", "Resistance to change"], th: ["ดื้อรั้น", "เย็นชา", "ต่อต้านการเปลี่ยนแปลง"] },
+                car: { en: ["Accountant", "Operations", "Compliance"], th: ["บัญชี", "ฝ่ายปฏิบัติการ", "ตรวจสอบ"] },
+                skills: { en: ["Data Analysis", "Auditing", "Process Optimization"], th: ["การวิเคราะห์ข้อมูล", "การตรวจสอบบัญชี", "การปรับปรุงกระบวนการ"] },
+                advice: { en: "Try to be more open to new methods. Flexibility can be an asset.", th: "ลองเปิดใจให้กับวิธีการใหม่ๆ ความยืดหยุ่นจะช่วยให้ท่านทำงานได้ราบรื่นขึ้น" }
+            },
+            'ISFJ': { 
+                alias: { en: 'The Protector', th: 'ผู้พิทักษ์' },
+                desc: { en: "Warm, dedicated, and steady team player. Ensures tasks are completed with care.", th: "อบอุ่น ทุ่มเท และมั่นคง ทำงานด้วยความใส่ใจและละเอียดรอบคอบ" },
+                str: { en: ["Supportive", "Reliable", "Patient"], th: ["สนับสนุนเก่ง", "ไว้ใจได้", "มีความอดทน"] },
+                weak: { en: ["Overly humble", "Takes things personally", "Represses feelings"], th: ["ถ่อมตนเกินไป", "คิดมาก", "เก็บกด"] },
+                car: { en: ["HR Specialist", "Healthcare Admin", "Customer Support"], th: ["ฝ่ายบุคคล", "ธุรการ", "บริการลูกค้า"] },
+                skills: { en: ["Conflict Resolution", "Organization", "Empathy"], th: ["การแก้ไขความขัดแย้ง", "การจัดระเบียบ", "ความเห็นอกเห็นใจ"] },
+                advice: { en: "Learn to say no to avoid burnout. Your needs matter too.", th: "หัดปฏิเสธเพื่อป้องกันภาวะหมดไฟ ความต้องการของท่านก็สำคัญเช่นกัน" }
+            },
+            'INFJ': { 
+                alias: { en: 'The Counselor', th: 'ที่ปรึกษา' },
+                desc: { en: "Insightful and principled. Sees hidden meanings and potential in projects.", th: "ลึกซึ้งและมีวิสัยทัศน์ มองเห็นความหมายและศักยภาพในงาน" },
+                str: { en: ["Creative", "Insightful", "Principled"], th: ["สร้างสรรค์", "มีวิสัยทัศน์", "มีหลักการ"] },
+                weak: { en: ["Sensitive", "Perfectionistic", "Burnout-prone"], th: ["อ่อนไหว", "สมบูรณ์แบบเกินไป", "หมดไฟง่าย"] },
+                car: { en: ["Psychologist", "Writer/Editor", "Non-profit"], th: ["นักจิตวิทยา", "นักเขียน", "งานพัฒนาสังคม"] },
+                skills: { en: ["Counseling", "Strategic Writing", "Human Development"], th: ["การให้คำปรึกษา", "การเขียนเชิงกลยุทธ์", "การพัฒนาทรัพยากรมนุษย์"] },
+                advice: { en: "Balance your idealism with practical steps. Start small.", th: "สร้างสมดุลระหว่างอุดมคติกับการลงมือทำจริง เริ่มจากก้าวเล็กๆ" }
+            },
+            'INTJ': { 
+                alias: { en: 'The Mastermind', th: 'นักวางแผน' },
+                desc: { en: "Strategic and logical. Approaches work with a long-term plan.", th: "นักกลยุทธ์ผู้มีตรรกะ เข้าหาการทำงานด้วยแผนระยะยาว" },
+                str: { en: ["Rational", "Strategic", "Determined"], th: ["มีเหตุผล", "เชี่ยวชาญกลยุทธ์", "มุ่งมั่น"] },
+                weak: { en: ["Arrogant", "Overly analytical", "Clueless in social cues"], th: ["ถือตัว", "วิเคราะห์มากเกินไป", "ไม่ทันเกมสังคม"] },
+                car: { en: ["Planner", "Analyst", "Developer"], th: ["นักวางแผน", "นักวิเคราะห์", "นักพัฒนา"] },
+                skills: { en: ["System Design", "Forecasting", "Logic"], th: ["การออกแบบระบบ", "การคาดการณ์", "ตรรกศาสตร์"] },
+                advice: { en: "Practice active listening. Others may have valid emotional insights.", th: "ฝึกฝนการฟังอย่างตั้งใจ ผู้อื่นอาจมีมุมมองทางอารมณ์ที่มีประโยชน์" }
+            },
+            'ISTP': { 
+                alias: { en: 'The Craftsman', th: 'ช่างฝีมือ' },
+                desc: { en: "Bold and practical experimenters. Great at troubleshooting.", th: "กล้าหาญและปฏิบัติจริง เชี่ยวชาญการแก้ปัญหาเฉพาะหน้า" },
+                str: { en: ["Optimistic", "Practical", "Rational"], th: ["มองโลกในแง่ดี", "ปฏิบัติได้จริง", "มีเหตุผล"] },
+                weak: { en: ["Stubborn", "Private", "Easily bored"], th: ["ดื้อรั้น", "โลกส่วนตัวสูง", "เบื่อง่าย"] },
+                car: { en: ["Engineer", "Technician", "Specialist"], th: ["วิศวกร", "ช่างเทคนิค", "ผู้เชี่ยวชาญ"] },
+                skills: { en: ["Troubleshooting", "Machinery", "Logic"], th: ["การแก้ปัญหาทางเทคนิค", "เครื่องจักรกล", "ตรรกะ"] },
+                advice: { en: "Try to stick with long-term projects even when the novelty wears off.", th: "พยายามอดทนกับโครงการระยะยาวแม้ความตื่นเต้นในช่วงแรกจะหมดไป" }
+            },
+            'ISFP': { 
+                alias: { en: 'The Composer', th: 'ศิลปิน' },
+                desc: { en: "Flexible and charming. Lives in the moment and adapts well.", th: "ยืดหยุ่นและมีเสน่ห์ ปรับตัวเก่งและอยู่กับปัจจุบัน" },
+                str: { en: ["Charming", "Sensitive", "Artistic"], th: ["มีเสน่ห์", "ไวต่อความรู้สึก", "มีหัวใจศิลป์"] },
+                weak: { en: ["Stressed easily", "Overly competitive", "Fluctuating confidence"], th: ["เครียดง่าย", "แข่งขันสูง", "ความมั่นใจไม่คงที่"] },
+                car: { en: ["Designer", "Service", "Freelance"], th: ["นักออกแบบ", "งานบริการ", "อาชีพอิสระ"] },
+                skills: { en: ["Aesthetics", "Adaptability", "Empathy"], th: ["สุนทรียศาสตร์", "การปรับตัว", "ความเห็นอกเห็นใจ"] },
+                advice: { en: "Don't take feedback personally. View it as a tool for growth.", th: "อย่าเก็บคำวิจารณ์มาคิดมาก ให้มองเป็นเครื่องมือในการเติบโต" }
+            },
+            'INFP': { 
+                alias: { en: 'The Healer', th: 'นักไกล่เกลี่ย' },
+                desc: { en: "Poetic, kind, and altruistic. Driven by values and meaning.", th: "อ่อนโยน มีอุดมการณ์ ขับเคลื่อนด้วยคุณค่าและความหมาย" },
+                str: { en: ["Empathetic", "Open-minded", "Passionate"], th: ["เห็นอกเห็นใจ", "เปิดกว้าง", "มีความมุ่งมั่น"] },
+                weak: { en: ["Unrealistic", "Unfocused", "Vulnerable"], th: ["เพ้อฝัน", "ขาดสมาธิ", "เปราะบาง"] },
+                car: { en: ["HR Dev", "Content Creator", "Counselor"], th: ["พัฒนาบุคลากร", "นักสร้างคอนเทนต์", "ที่ปรึกษา"] },
+                skills: { en: ["Storytelling", "Mediation", "Creativity"], th: ["การเล่าเรื่อง", "การไกล่เกลี่ย", "ความคิดสร้างสรรค์"] },
+                advice: { en: "Set practical deadlines to help turn your dreams into reality.", th: "กำหนดเส้นตายที่ทำได้จริงเพื่อช่วยเปลี่ยนความฝันให้เป็นความจริง" }
+            },
+            'INTP': { 
+                alias: { en: 'The Architect', th: 'นักตรรกะ' },
+                desc: { en: "Inventive and curious. Loves analyzing systems and logic.", th: "นักคิดค้นและช่างสงสัย หลงใหลในระบบและตรรกะ" },
+                str: { en: ["Analytical", "Original", "Objective"], th: ["วิเคราะห์เก่ง", "มีความคิดริเริ่ม", "เป็นกลาง"] },
+                weak: { en: ["Absent-minded", "Insensitive", "Impractical"], th: ["ใจลอย", "ไม่สนความรู้สึก", "ขาดการปฏิบัติ"] },
+                car: { en: ["Developer", "Researcher", "Analyst"], th: ["นักพัฒนา", "นักวิจัย", "นักวิเคราะห์"] },
+                skills: { en: ["Coding/Math", "Problem Solving", "Abstract Thinking"], th: ["การเขียนโปรแกรม/คณิตศาสตร์", "การแก้ปัญหา", "การคิดเชิงนามธรรม"] },
+                advice: { en: "Focus on finishing projects, not just starting/analyzing them.", th: "โฟกัสที่การทำงานให้เสร็จ ไม่ใช่แค่การเริ่มต้นหรือวิเคราะห์" }
+            },
+            'ESTP': { 
+                alias: { en: 'The Dynamo', th: 'ผู้ประกอบการ' },
+                desc: { en: "Smart, energetic, and perceptive. Thrives on action.", th: "ฉลาด พลังงานสูง และช่างสังเกต ชอบการลงมือทำ" },
+                str: { en: ["Bold", "Rational", "Direct"], th: ["กล้าหาญ", "มีเหตุผล", "ตรงไปตรงมา"] },
+                weak: { en: ["Impatient", "Risk-prone", "Unstructured"], th: ["ใจร้อน", "ชอบเสี่ยง", "ไม่ชอบระบบ"] },
+                car: { en: ["Sales", "Field Ops", "Emergency Response"], th: ["งานขาย", "ปฏิบัติการภาคสนาม", "งานฉุกเฉิน"] },
+                skills: { en: ["Negotiation", "Crisis Mgmt", "Agility"], th: ["การเจรจาต่อรอง", "การจัดการวิกฤต", "ความคล่องตัว"] },
+                advice: { en: "Think about long-term consequences before taking risks.", th: "คิดถึงผลกระทบระยะยาวก่อนที่จะตัดสินใจเสี่ยง" }
+            },
+            'ESFP': { 
+                alias: { en: 'The Performer', th: 'ผู้มอบความบันเทิง' },
+                desc: { en: "Spontaneous, energetic, and enthusiastic team member.", th: "ร่าเริง มีพลัง และเป็นเพื่อนร่วมทีมที่กระตือรือร้น" },
+                str: { en: ["Bold", "Original", "People-skills"], th: ["กล้าแสดงออก", "แปลกใหม่", "ทักษะมนุษย์ดีเยี่ยม"] },
+                weak: { en: ["Conflict-averse", "Easily bored", "Poor planner"], th: ["เลี่ยงความขัดแย้ง", "เบื่อง่าย", "วางแผนไม่เก่ง"] },
+                car: { en: ["PR / Event", "Sales Rep", "Customer Relations"], th: ["พีอาร์/อีเวนต์", "ตัวแทนขาย", "ลูกค้าสัมพันธ์"] },
+                skills: { en: ["Public Speaking", "Networking", "Event Planning"], th: ["การพูดในที่สาธารณะ", "การสร้างเครือข่าย", "การวางแผนอีเวนต์"] },
+                advice: { en: "Develop a routine for administrative tasks to stay organized.", th: "สร้างกิจวัตรสำหรับการทำงานเอกสารเพื่อให้เป็นระเบียบ" }
+            },
+            'ENFP': { 
+                alias: { en: 'The Champion', th: 'ผู้รณรงค์' },
+                desc: { en: "Enthusiastic, creative and free-spirited. Connects ideas.", th: "กระตือรือร้น สร้างสรรค์ และรักอิสระ เชื่อมโยงไอเดียได้ดี" },
+                str: { en: ["Curious", "Observant", "Communicator"], th: ["อยากรู้อยากเห็น", "ช่างสังเกต", "นักสื่อสาร"] },
+                weak: { en: ["Overthinker", "Emotional", "Unfocused"], th: ["คิดมาก", "ใช้อารมณ์", "จับจด"] },
+                car: { en: ["Marketing", "Creative Lead", "Consultant"], th: ["การตลาด", "หัวหน้าทีมสร้างสรรค์", "ที่ปรึกษา"] },
+                skills: { en: ["Brainstorming", "Communication", "Innovation"], th: ["การระดมสมอง", "การสื่อสาร", "นวัตกรรม"] },
+                advice: { en: "Learn to prioritize. You can do anything, but not everything.", th: "เรียนรู้การจัดลำดับความสำคัญ ท่านทำได้ทุกอย่าง แต่ไม่ใช่พร้อมกัน" }
+            },
+            'ENTP': { 
+                alias: { en: 'The Visionary', th: 'นักโต้วาที' },
+                desc: { en: "Smart, curious, and intellectual. Loves solving problems.", th: "ฉลาด อยากรู้อยากเห็น ชอบการแก้ปัญหาที่ท้าทาย" },
+                str: { en: ["Knowledgeable", "Quick thinker", "Charismatic"], th: ["รอบรู้", "คิดเร็ว", "มีเสน่ห์"] },
+                weak: { en: ["Argumentative", "Intolerant", "Dislikes details"], th: ["ชอบเถียง", "ความอดทนต่ำ", "ไม่ชอบรายละเอียด"] },
+                car: { en: ["Innovation Lead", "Lawyer", "Entrepreneur"], th: ["ผู้นำนวัตกรรม", "ทนายความ", "ผู้ประกอบการ"] },
+                skills: { en: ["Debate", "Strategic Thinking", "Prototyping"], th: ["การโต้วาที", "การคิดเชิงกลยุทธ์", "การสร้างต้นแบบ"] },
+                advice: { en: "Follow through on your ideas. Execution matters more than ideation.", th: "สานต่อไอเดียให้จบ การลงมือทำสำคัญกว่าแค่การคิด" }
+            },
+            'ESTJ': { 
+                alias: { en: 'The Supervisor', th: 'ผู้บริหาร' },
+                desc: { en: "Dedicated, strong-willed, and direct. Gets things done.", th: "ทุ่มเท มุ่งมั่น และตรงไปตรงมา เน้นผลลัพธ์ของงาน" },
+                str: { en: ["Dedicated", "Loyal", "Organized"], th: ["ทุ่มเท", "จงรักภักดี", "เป็นระเบียบ"] },
+                weak: { en: ["Inflexible", "Judgmental", "Difficulty relaxing"], th: ["ไม่ยืดหยุ่น", "ตัดสินคนง่าย", "ผ่อนคลายไม่เป็น"] },
+                car: { en: ["Operations Manager", "Project Manager", "Officer"], th: ["ผู้จัดการฝ่ายปฏิบัติการ", "ผู้จัดการโครงการ", "เจ้าหน้าที่"] },
+                skills: { en: ["Management", "Logistics", "Enforcement"], th: ["การจัดการ", "โลจิสติกส์", "การบังคับใช้กฎ"] },
+                advice: { en: "Relax your standards occasionally. Not everyone works at your pace.", th: "ผ่อนปรนมาตรฐานบ้างในบางครั้ง ไม่ใช่ทุกคนจะทำงานได้เร็วเท่าท่าน" }
+            },
+            'ESFJ': { 
+                alias: { en: 'The Provider', th: 'ผู้ให้คำปรึกษา' },
+                desc: { en: "Caring, social, and popular. Always eager to help the team.", th: "ใส่ใจ เข้าสังคมเก่ง และพร้อมช่วยเหลือทีมเสมอ" },
+                str: { en: ["Practical", "Loyal", "Sensitive"], th: ["ปฏิบัติจริง", "ภักดี", "ไวต่อความรู้สึก"] },
+                weak: { en: ["Needy", "Inflexible", "Too selfless"], th: ["ต้องการการยอมรับ", "ไม่ยืดหยุ่น", "เสียสละเกินไป"] },
+                car: { en: ["Office Manager", "Social Worker", "Public Relations"], th: ["ผู้จัดการสำนักงาน", "นักสังคมสงเคราะห์", "ประชาสัมพันธ์"] },
+                skills: { en: ["Team Building", "Administration", "Service"], th: ["การสร้างทีม", "งานธุรการ", "งานบริการ"] },
+                advice: { en: "Don't buy peace at any price. Address conflicts directly.", th: "อย่าแลกความสงบด้วยทุกราคา กล้าที่จะเผชิญหน้ากับความขัดแย้ง" }
+            },
+            'ENFJ': { 
+                alias: { en: 'The Teacher', th: 'ตัวเอก' },
+                desc: { en: "Charismatic and inspiring. Natural team motivator.", th: "มีเสน่ห์ สร้างแรงบันดาลใจ และกระตุ้นทีมได้เป็นธรรมชาติ" },
+                str: { en: ["Reliable", "Charismatic", "Altruistic"], th: ["ไว้ใจได้", "มีเสน่ห์", "เห็นแก่ส่วนรวม"] },
+                weak: { en: ["Idealistic", "Too selfless", "Sensitive"], th: ["อุดมคติจัด", "เสียสละเกินไป", "อ่อนไหว"] },
+                car: { en: ["Team Lead", "HR / Training", "Coordinator"], th: ["หัวหน้าทีม", "ฝ่ายบุคคล/ฝึกอบรม", "ผู้ประสานงาน"] },
+                skills: { en: ["Mentoring", "Public Speaking", "Collaboration"], th: ["การเป็นพี่เลี้ยง", "การพูดในที่สาธารณะ", "การทำงานร่วมกัน"] },
+                advice: { en: "Be careful not to overextend yourself helping others.", th: "ระวังอย่าฝืนตัวเองจนเกินไปในการช่วยเหลือผู้อื่น" }
+            },
+            'ENTJ': { 
+                alias: { en: 'The Commander', th: 'ผู้บัญชาการ' },
+                desc: { en: "Bold, imaginative and strong-willed. Natural organizer.", th: "กล้าหาญ มีจินตนาการ เด็ดเดี่ยว และเป็นนักจัดการโดยธรรมชาติ" },
+                str: { en: ["Efficient", "Energetic", "Confident"], th: ["มีประสิทธิภาพ", "พลังงานสูง", "มั่นใจ"] },
+                weak: { en: ["Stubborn", "Intolerant", "Arrogant"], th: ["ดื้อรั้น", "ไม่อดทน", "ถือตัว"] },
+                car: { en: ["Manager", "Consultant", "Executive"], th: ["ผู้จัดการ", "ที่ปรึกษา", "ผู้บริหาร"] },
+                skills: { en: ["Leadership", "Strategic Planning", "Public Speaking"], th: ["ภาวะผู้นำ", "การวางแผนกลยุทธ์", "การพูดในที่สาธารณะ"] },
+                advice: { en: "Remember to appreciate the contributions of others.", th: "อย่าลืมชื่นชมผลงานและการมีส่วนร่วมของผู้อื่น" }
+            }
+        };
+
+        const FUNCTION_DEFS = {
+            'Ni': {
+                name: { en: "Introverted Intuition", th: "สัญชาตญาณหยั่งรู้ภายใน (Ni)" },
+                desc: { en: "Visionary insight. Seeing patterns and future implications.", th: "การมองเห็นภาพรวมและอนาคตอย่างลึกซึ้ง เน้นวิสัยทัศน์" }
+            },
+            'Ne': {
+                name: { en: "Extraverted Intuition", th: "สัญชาตญาณสร้างสรรค์ภายนอก (Ne)" },
+                desc: { en: "Exploration of possibilities. Brainstorming connections.", th: "การมองเห็นความเป็นไปได้ใหม่ๆ ชอบการระดมสมอง" }
+            },
+            'Si': {
+                name: { en: "Introverted Sensing", th: "การรับรู้ผ่านประสบการณ์ (Si)" },
+                desc: { en: "Recall and stability. Comparing present to past.", th: "การจดจำรายละเอียดและเรียนรู้จากอดีต เน้นความมั่นคง" }
+            },
+            'Se': {
+                name: { en: "Extraverted Sensing", th: "การรับรู้ผ่านประสาทสัมผัส (Se)" },
+                desc: { en: "Action in the moment. Engaging with the physical world.", th: "การอยู่กับปัจจุบันและการตอบสนองต่อสิ่งเร้าอย่างฉับไว" }
+            },
+            'Ti': {
+                name: { en: "Introverted Thinking", th: "การคิดวิเคราะห์ภายใน (Ti)" },
+                desc: { en: "Analytical precision. Seeking logical consistency.", th: "การวิเคราะห์หาเหตุผลและตรรกะภายในเพื่อความถูกต้อง" }
+            },
+            'Te': {
+                name: { en: "Extraverted Thinking", th: "การจัดระบบความคิดภายนอก (Te)" },
+                desc: { en: "Efficient structuring. Organizing for maximum output.", th: "การบริหารจัดการและจัดระเบียบโลกภายนอกเพื่อผลลัพธ์" }
+            },
+            'Fi': {
+                name: { en: "Introverted Feeling", th: "ความรู้สึกและคุณค่าภายใน (Fi)" },
+                desc: { en: "Authenticity and values. Internal moral alignment.", th: "การตัดสินใจโดยยึดมั่นในคุณค่าและความถูกต้องของตนเอง" }
+            },
+            'Fe': {
+                name: { en: "Extraverted Feeling", th: "ความรู้สึกและความสัมพันธ์ภายนอก (Fe)" },
+                desc: { en: "Harmony and connection. Navigating social dynamics.", th: "การเข้าใจอารมณ์ของผู้อื่นและการสร้างความปรองดอง" }
+            }
+        };
+
+        const POSITION_DEFS = {
+            dom: {
+                role: { en: "The Captain", th: "กัปตันเรือ" },
+                desc: { en: "Your primary mode. Most natural and competent.", th: "กระบวนการคิดหลักที่ท่านใช้โดยธรรมชาติ มีความชำนาญสูงสุด" }
+            },
+            aux: {
+                role: { en: "The Advisor", th: "ที่ปรึกษา" },
+                desc: { en: "Supports the captain. Provides balance.", th: "ช่วยสนับสนุนและสร้างสมดุลให้กับฟังก์ชันหลัก" }
+            },
+            tert: {
+                role: { en: "The Relief", th: "พื้นที่ผ่อนคลาย" },
+                desc: { en: "Used to relax. Less mature, playful.", th: "ใช้เพื่อการผ่อนคลาย อาจยังไม่มีความสม่ำเสมอ" }
+            },
+            inf: {
+                role: { en: "The Anchor", th: "สมอเรือ/จุดอ่อน" },
+                desc: { en: "Your blindspot. Emerges under stress.", th: "จุดอ่อนที่มักทำงานเมื่อเครียด การพัฒนาจุดนี้คือกุญแจสู่การเติบโต" }
+            }
+        };
+
+        const STACKS = {
+            'ISTJ': 'Si-Te-Fi-Ne', 'ISFJ': 'Si-Fe-Ti-Ne', 'INFJ': 'Ni-Fe-Ti-Se', 'INTJ': 'Ni-Te-Fi-Se',
+            'ISTP': 'Ti-Se-Ni-Fe', 'ISFP': 'Fi-Se-Ni-Te', 'INFP': 'Fi-Ne-Si-Te', 'INTP': 'Ti-Ne-Si-Fe',
+            'ESTP': 'Se-Ti-Fe-Ni', 'ESFP': 'Se-Fi-Te-Ni', 'ENFP': 'Ne-Fi-Te-Si', 'ENTP': 'Ne-Ti-Fe-Si',
+            'ESTJ': 'Te-Si-Ne-Fi', 'ESFJ': 'Fe-Si-Ne-Ti', 'ENFJ': 'Fe-Ni-Se-Ti', 'ENTJ': 'Te-Ni-Se-Fi'
+        };
+
+        const app = {
+            lang: 'en',
+            answers: {},
+            
+            init: function() {
+                this.renderQuestions();
+                this.updateText();
+            },
+
+            toggleLang: function() {
+                this.lang = this.lang === 'en' ? 'th' : 'en';
+                document.getElementById('langText').innerText = this.lang === 'en' ? 'ENGLISH' : 'THAI';
+                this.updateText();
+                this.renderQuestions();
+                if (!document.getElementById('results-screen').classList.contains('hidden')) {
+                   this.showResults(document.getElementById('res-type').innerText);
+                }
+            },
+
+            updateText: function() {
+                const t = UI_TEXT[this.lang];
+                // Safely update elements only if they exist
+                const safeUpdate = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = text;
+                };
+
+                safeUpdate('intro-title', t.introTitle);
+                safeUpdate('intro-sub', t.introSub);
+                safeUpdate('start-btn', t.startBtn);
+                safeUpdate('consent-title', t.consentTitle);
+                safeUpdate('consent-pdpa', t.consentPDPA);
+                safeUpdate('consent-text', t.consentText);
+                safeUpdate('consent-accept', t.acceptBtn);
+                safeUpdate('consent-cancel', t.cancelBtn);
+                safeUpdate('progress-label', t.prog);
+                safeUpdate('analyze-label', t.analyzeBtn);
+                
+                safeUpdate('h-exec', t.hExec);
+                safeUpdate('h-str', t.hStr);
+                safeUpdate('h-blind', t.hBlind);
+                safeUpdate('h-traj', t.hTraj);
+                safeUpdate('h-stack', t.hStack);
+                safeUpdate('stack-intro', t.stackIntro);
+                safeUpdate('disclaimer-text', t.disclaimer);
+            },
+
+            go: function(screenId) {
+                document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+                document.getElementById(screenId + '-screen').classList.remove('hidden');
+                if (screenId === 'intro') {
+                    this.answers = {};
+                    this.updateProgress();
+                    document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+                }
+                window.scrollTo(0,0);
+            },
+
+            renderQuestions: function() {
+                const container = document.getElementById('questions-container');
+                container.innerHTML = '';
+                QUESTIONS.forEach((q, idx) => {
+                    const lText = q.l[this.lang]; const rText = q.r[this.lang];
+                    const val = this.answers[q.id] || null;
+                    const html = `
+                        <div class="card question-card flex flex-col items-center">
+                            <div style="font-size:0.7rem; font-weight:700; color:var(--slate-200); margin-bottom:15px;">Q${idx+1}</div>
+                            <div class="flex items-center justify-between w-full question-row" style="gap:20px;">
+                                <div style="flex:1; text-align:right; font-weight:600; font-size:1.1rem; color: ${val && val < 3 ? 'var(--primary)' : 'var(--slate-600)'}">${lText}</div>
+                                <div class="scale-options">
+                                    ${[1,2,3,4,5].map(i => `<div class="scale-btn ${val === i ? 'selected' : ''}" onclick="app.setAnswer(${q.id}, ${i})"><div class="dot" style="width:${i===3?8:i===2||i===4?12:16}px; height:${i===3?8:i===2||i===4?12:16}px; opacity:${i===3?0.3:i===2||i===4?0.6:1}"></div></div>`).join('')}
+                                </div>
+                                <div style="flex:1; text-align:left; font-weight:600; font-size:1.1rem; color: ${val && val > 3 ? 'var(--primary)' : 'var(--slate-600)'}">${rText}</div>
+                            </div>
+                        </div>`;
+                    container.innerHTML += html;
+                });
+            },
+
+            setAnswer: function(qId, val) {
+                this.answers[qId] = val; this.renderQuestions(); this.updateProgress();
+            },
+
+            updateProgress: function() {
+                const count = Object.keys(this.answers).length;
+                const pct = Math.round((count / QUESTIONS.length) * 100);
+                document.getElementById('progress-val').innerText = pct + '%';
+                document.getElementById('progress-fill').style.width = pct + '%';
+                const btn = document.getElementById('generate-btn');
+                if (count === QUESTIONS.length) { btn.disabled = false; btn.style.opacity = 1; btn.classList.remove('btn-dark'); btn.classList.add('btn-primary'); } 
+                else { btn.disabled = true; btn.style.opacity = 0.5; }
+            },
+
+            calculate: function() {
+                let s = { EI:0, SN:0, TF:0, JP:0 };
+                QUESTIONS.forEach(q => s[q.d] += (this.answers[q.id] || 3));
+                const type = (s.EI > 15 ? 'I' : 'E') + (s.SN > 15 ? 'N' : 'S') + (s.TF > 15 ? 'F' : 'T') + (s.JP > 15 ? 'P' : 'J');
+                this.showResults(type);
+            },
+
+            showResults: function(type) {
+                const p = PROFILES[type] || PROFILES['ENTJ'];
+                document.getElementById('res-type').innerText = type;
+                document.getElementById('res-alias').innerText = p.alias[this.lang];
+                document.getElementById('res-tagline').innerText = `"${p.desc[this.lang]}"`;
+                
+                // Dynamic Lists
+                document.getElementById('res-strengths').innerHTML = p.str[this.lang].map(i => `<li>${i}</li>`).join('');
+                document.getElementById('res-blindspots').innerHTML = p.weak[this.lang].map(i => `<li>${i}</li>`).join('');
+                
+                // Career + Skills
+                const careerHTML = p.car[this.lang].map(c => `
+                    <div class="career-card">
+                        <div class="career-title">${c}</div>
+                        <div>
+                            ${p.skills[this.lang].map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('res-careers').innerHTML = careerHTML;
+                
+                // Advice
+                document.getElementById('res-advice').innerText = p.advice[this.lang];
+
+                document.getElementById('res-desc').innerText = this.lang === 'en' ? `Based on your responses, you exhibit the traits of the ${type}.` : `จากคำตอบของท่าน ท่านมีลักษณะเด่นของรูปแบบ ${type}`;
+
+                // Stack
+                const stackStr = STACKS[type] || "Ni-Te-Fi-Se";
+                const functions = stackStr.split('-'); 
+                const roles = ['dom', 'aux', 'tert', 'inf'];
+                let stackHtml = '';
+                roles.forEach((roleKey, index) => {
+                    const funcCode = functions[index];
+                    const roleData = POSITION_DEFS[roleKey];
+                    const funcData = FUNCTION_DEFS[funcCode];
+                    stackHtml += `
+                        <div class="stack-card ${roleKey === 'dom' ? 'stack-main' : ''}">
+                            <div class="stack-icon ${roleKey === 'dom' ? 'stack-main' : ''}">${funcCode}</div>
+                            <div>
+                                <div class="stack-role">${roleData.role[this.lang]} (${roleKey.toUpperCase()})</div>
+                                <div style="font-weight:700; font-size:1rem; margin-bottom:5px;">${funcData.name[this.lang]}</div>
+                                <p class="stack-desc"><strong>${funcData.desc[this.lang]}</strong></p>
+                                <p class="stack-desc" style="margin-top:8px; font-size:0.8rem; opacity:0.8;">${roleData.desc[this.lang]}</p>
+                            </div>
+                        </div>`;
+                });
+                document.getElementById('res-stack-container').innerHTML = stackHtml;
+                this.go('results');
+            }
+        };
+
+        app.init();
+    </script>
+</body>
+</html>
