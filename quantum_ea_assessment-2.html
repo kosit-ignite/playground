@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quantum EA Assessment</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Prompt', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6', // Teal-500
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Inter', 'Prompt', sans-serif !important;
+            background-color: #f8fafc; /* slate-50 */
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .fade-transition {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        
+        .hide {
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+        
+        .show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Hide scrollbar for clean mobile UI */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex justify-center min-h-screen">
+
+    <!-- Mobile-sized App Container -->
+    <div class="w-full max-w-md bg-white shadow-xl min-h-screen flex flex-col relative overflow-hidden">
+        
+        <!-- Header -->
+        <header class="p-4 border-b border-slate-100 flex justify-between items-center bg-white z-10 sticky top-0">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-brand-500 text-white flex items-center justify-center font-bold text-lg">Q</div>
+                <h1 class="font-bold text-slate-800 text-sm leading-tight">Quantum EA<br><span class="text-brand-500 font-medium text-xs">Self-Assessment</span></h1>
+            </div>
+            <button id="langToggle" onclick="toggleLang()" class="px-3 py-1 rounded-full bg-slate-100 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition">
+                EN / TH
+            </button>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="app-content" class="flex-1 flex flex-col p-5 overflow-y-auto fade-transition show relative pb-20">
+            <!-- Content dynamically injected here -->
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full py-4 text-center text-[10px] sm:text-xs text-slate-400 px-4 mt-auto border-t border-slate-50 bg-white">
+            <p>&copy; 2026 IGNITE The Consultant Company Limited.</p>
+            <p class="mt-1">Licensed by using the IGNITE Quantum Thinker Framework.</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentLang = 'th'; // Default to Thai
+        let currentQuestion = 0;
+        let scores = { dim1: 0, dim2: 0, dim3: 0, dim4: 0 };
+        let radarChartInstance = null;
+
+        // Dim 1: Parallel Thinking (Q1, Q2, Q3) - Max 30
+        // Dim 2: Tech-Augmented (Q4, Q5) - Max 20
+        // Dim 3: Dynamic Agility (Q6, Q7, Q8) - Max 30
+        // Dim 4: Strategic Bridge (Q9, Q10) - Max 20
+
+        const translations = {
+            en: {
+                welcomeTitle: "Ready to step into the Quantum Era?",
+                welcomeDesc: "Discover if you are operating as a traditional assistant or a strategic Quantum EA. This 10-question assessment will analyze your mindset across 4 dimensions.",
+                startBtn: "Start Assessment",
+                qPrefix: "Question",
+                dim1: "Parallel Thinking",
+                dim2: "Tech-Augmented",
+                dim3: "Dynamic Agility",
+                dim4: "Strategic Bridge",
+                resultsTitle: "Your Quantum Profile",
+                resultsDesc: "Here is your competency map.",
+                pillar1: "Work Mastery",
+                pillar2: "Tech Mastery",
+                pillar3: "People Mastery",
+                coachingTitle: "Coaching & Development Guide",
+                currentState: "Current State",
+                gapAnalysis: "Gap Analysis",
+                recommendedCourses: "Recommended Courses 🎯",
+                retakeBtn: "Retake Assessment"
+            },
+            th: {
+                welcomeTitle: "พร้อมก้าวสู่ยุคควอนตัมหรือยัง?",
+                welcomeDesc: "ค้นพบว่าคุณกำลังทำงานแบบเลขานุการวิถีเดิม หรือเป็นคู่คิดเชิงกลยุทธ์ (Quantum EA) แบบทดสอบ 10 ข้อนี้จะวิเคราะห์กระบวนทัศน์ของคุณใน 4 มิติสำคัญ",
+                startBtn: "เริ่มทำแบบประเมิน",
+                qPrefix: "คำถามที่",
+                dim1: "คิดเชิงคู่ขนาน (Parallel Thinking)",
+                dim2: "ใช้ AI ทุ่นแรง (Tech-Augmented)",
+                dim3: "ยืดหยุ่นปรับตัวไว (Dynamic Agility)",
+                dim4: "สะพานเชื่อมเชิงกลยุทธ์ (Strategic Bridge)",
+                resultsTitle: "รายงานผลสมรรถนะ Quantum EA",
+                resultsDesc: "แผนผังวิเคราะห์ศักยภาพของคุณ",
+                pillar1: "เข้าใจงาน (Work Mastery)",
+                pillar2: "เข้าใจเครื่องมือ (Tech Mastery)",
+                pillar3: "เข้าใจคน (People Mastery)",
+                coachingTitle: "ข้อเสนอแนะและแนวทางพัฒนา (Coaching Window)",
+                currentState: "สภาวะปัจจุบัน (Current State)",
+                gapAnalysis: "วิเคราะห์ช่องว่าง (Gap Analysis)",
+                recommendedCourses: "หลักสูตรที่แนะนำเพื่อยกระดับสมรรถนะ 🎯",
+                retakeBtn: "ทำแบบประเมินอีกครั้ง"
+            }
+        };
+
+        const questions = [
+            { // Q1 - Parallel
+                dim: 'dim1',
+                th: "เมื่อมีโครงการด่วนแทรกเข้ามา 3 โครงการพร้อมกัน คุณมีแนวทางจัดการอย่างไร?",
+                en: "When 3 urgent projects drop onto your desk at the same time, how do you handle them?",
+                options: [
+                    { th: "ทำทีละงานตามลำดับที่ได้รับมอบหมาย โดยไม่ประเมินสถานการณ์รอบข้าง", en: "Do them one by one in the order received without checking the situation.", val: 0 },
+                    { th: "สอบถามผู้บริหารเพื่อขอให้ช่วยตัดสินใจและจัดลำดับความสำคัญให้", en: "Ask the executive to step in and choose which one is most important.", val: 3 },
+                    { th: "จัดลำดับความสำคัญด้วยตนเองตามเดดไลน์ และเริ่มกระจายงานพื้นฐานให้ทีม", en: "Sort them by deadline myself and assign standard tasks to others.", val: 7 },
+                    { th: "ประเมินผลกระทบต่อภาพรวม จัดลำดับตามเป้าหมายของบริษัท และบริหารจัดการพร้อมกันด้วยเครื่องมืออัจฉริยะ", en: "Look at how they affect the whole business, match them with company goals, and manage them all at once using smart tools and teamwork.", val: 10 }
+                ]
+            },
+            { // Q2 - Parallel
+                dim: 'dim1',
+                th: "ในการบริหารตารางงานและการเดินทางที่ซับซ้อนของผู้บริหาร คุณให้ความสำคัญกับสิ่งใดสูงสุด?",
+                en: "When managing complex executive travel and schedules, what is your highest priority?",
+                options: [
+                    { th: "จองตั๋วและที่พักให้ถูกต้องตามนโยบายบริษัท และช่วยประหยัดงบประมาณ", en: "Booking accurately according to company rules and saving budget.", val: 0 },
+                    { th: "จัดตารางไม่ให้ชนกัน และเผื่อเวลาเดินทางเพื่อลดความเหนื่อยล้าทางกาย", en: "Making sure meetings don't overlap and adding extra time for rest.", val: 3 },
+                    { th: "จัดตารางงานให้สอดคล้องกับวาระการประชุมสำคัญ และปกป้องเวลาส่วนตัวของผู้บริหาร", en: "Matching schedules with key meetings and protecting personal time.", val: 7 },
+                    { th: "บริหารจัดการพลังงานและความคิดของผู้บริหาร พร้อมจัดวางลำดับการตัดสินใจเพื่อให้บรรลุเป้าหมายสูงสุด", en: "Managing the executive's energy and scheduling decisions to get the best business results.", val: 10 }
+                ]
+            },
+            { // Q3 - Parallel
+                dim: 'dim1',
+                th: "หากเกิดการเลื่อนนัดหมายกับพาร์ทเนอร์คนสำคัญกะทันหัน คุณจะบริหารจัดการผลกระทบอย่างไร?",
+                en: "If an important meeting with a key partner is suddenly delayed, how do you manage the changes?",
+                options: [
+                    { th: "แจ้งผู้ที่เกี่ยวข้องทั้งหมดให้รับทราบทันทีเพื่ออัปเดตสถานะ", en: "Tell everyone involved right away to update the status.", val: 0 },
+                    { th: "รีบหาวันและเวลาใหม่ที่ปฏิทินของทุกฝ่ายว่างตรงกันโดยเร็วที่สุด", en: "Quickly find a new time when everyone is free.", val: 3 },
+                    { th: "คาดการณ์ผลกระทบต่องานย่อย และแจ้งให้ทีมงานปรับแผนงานขั้นต้น", en: "Predict how this affects smaller tasks and tell the team to adjust their first plans.", val: 7 },
+                    { th: "วิเคราะห์ผลกระทบที่อาจเกิดขึ้นเป็นลูกโซ่ ปรับแผนงานหลักใหม่ทั้งหมด และเตรียมการสื่อสารเพื่อลดความเสี่ยง", en: "Analyze how this delay impacts other projects, rebuild the main plan, and communicate clearly to lower any risks.", val: 10 }
+                ]
+            },
+            { // Q4 - Tech
+                dim: 'dim2',
+                th: "วิธีการจัดการสรุปรายงานการประชุม (Meeting Minutes) ของคุณคือแบบใด?",
+                en: "What is your way of managing meeting notes and next steps?",
+                options: [
+                    { th: "จดบันทึกด้วยมือหรือพิมพ์ตามทุกคำพูด แล้วนำมาจัดรูปแบบใหม่ภายหลัง", en: "Type out everything said manually, and fix the format later.", val: 0 },
+                    { th: "พิมพ์สรุปเฉพาะประเด็นสำคัญ และสิ่งที่ต้องทำต่อ (Action Items)", en: "Type out only the main points and action items manually.", val: 3 },
+                    { th: "ใช้โปรแกรมช่วยแปลงเสียงเป็นข้อความ และนำมาเกลาเนื้อหาด้วยตนเอง", en: "Use standard voice-to-text software and fix the text myself.", val: 7 },
+                    { th: "นำ AI มาประยุกต์ใช้เพื่อถอดเสียง สรุปมติงานที่ต้องทำต่อ และร่างอีเมลติดตามงานโดยอัตโนมัติ", en: "Use AI to automatically write down the notes, find next steps, and draft follow-up emails.", val: 10 }
+                ]
+            },
+            { // Q5 - Tech
+                dim: 'dim2',
+                th: "ในแต่ละวันที่ข้อมูลและอีเมลหลั่งไหลเข้ามามหาศาล คุณมีกลยุทธ์รับมืออย่างไร?",
+                en: "In a day with a massive amount of emails and data, what is your strategy?",
+                options: [
+                    { th: "ไล่อ่านและตอบทีละฉบับตามลำดับเวลาจนกว่าจะเสร็จทั้งหมด", en: "Read and reply one by one until the inbox is empty.", val: 0 },
+                    { th: "ตั้งโฟลเดอร์แยกหมวดหมู่ เพื่อให้อ่านง่ายและเป็นระเบียบ", en: "Create folders to put emails in groups so it's easier to read.", val: 3 },
+                    { th: "ตั้งกฎอัตโนมัติบนอีเมล เพื่อคัดแยกข้อความขยะและเรื่องทั่วไปออกไป", en: "Set up basic rules to automatically move junk and normal updates.", val: 7 },
+                    { th: "สร้างระบบส่วนตัวโดยใช้ AI กรองข้อมูลที่ไม่จำเป็นออก และคัดเฉพาะข้อมูลเชิงลึกที่สำคัญส่งตรงถึงผู้บริหาร", en: "Build a personal system using AI to filter out junk and show only the most useful information to the executive.", val: 10 }
+                ]
+            },
+            { // Q6 - Agility
+                dim: 'dim3',
+                th: "เมื่อบริษัทเปลี่ยนเป้าหมายกะทันหัน ทำให้รายงานที่คุณเตรียมไว้ไม่ได้ใช้งานแล้ว คุณตอบสนองอย่างไร?",
+                en: "When the company suddenly changes its goals, making your detailed reports useless, how do you respond?",
+                options: [
+                    { th: "รู้สึกหงุดหงิด และต้องใช้เวลาตั้งหลักนานกว่าจะกลับมาทำงานต่อได้", en: "Feel frustrated and take a long time to get back to working normally.", val: 0 },
+                    { th: "ยอมรับได้ แต่รอให้ผู้บริหารสั่งงานใหม่ที่ชัดเจนก่อนลงมือทำ", en: "Accept the change, but wait for the boss to give clear new instructions.", val: 3 },
+                    { th: "ปรับตัวได้รวดเร็ว สอบถามเป้าหมายใหม่ และเริ่มวางแผนงานใหม่ทันที", en: "Adapt quickly, ask about the new goals, and start planning again right away.", val: 7 },
+                    { th: "ปรับตัวฉับพลัน นำข้อมูลที่มีอยู่มาใช้ใหม่ และร่างแผนการทำงานเพื่อรองรับกลยุทธ์ใหม่ทันที", en: "Adapt instantly, reuse good data, and quickly build new plans for the new strategy.", val: 10 }
+                ]
+            },
+            { // Q7 - Agility
+                dim: 'dim3',
+                th: "หากเผชิญวิกฤตใหม่ที่ไม่เคยมีระบุไว้ในคู่มือการทำงาน คุณจะตัดสินใจอย่างไร?",
+                en: "If you face a brand new crisis with no rulebook, how do you act?",
+                options: [
+                    { th: "หยุดรอดูสถานการณ์ หรือรอถามผู้บริหารเพื่อป้องกันความผิดพลาด", en: "Wait for the executive to decide so I don't make mistakes.", val: 0 },
+                    { th: "ปรึกษาเพื่อนร่วมงานเพื่อหาทางออกที่ปลอดภัยที่สุด", en: "Ask colleagues to find the safest choice everyone agrees on.", val: 3 },
+                    { th: "ประเมินความเสี่ยงเบื้องต้น ตัดสินใจแก้ปัญหาเฉพาะหน้าเพื่อควบคุมความเสียหาย", en: "Check the basic risks and make a quick choice to stop the damage.", val: 7 },
+                    { th: "ประเมินความเสี่ยงเชิงลึก ตัดสินใจอย่างเด็ดขาดเพื่อแก้ปัญหา และรายงานผลพร้อมเสนอแนวทางป้องกัน", en: "Check the deep risks, make a firm decision to fix the issue, and report the result with ideas to stop it from happening again.", val: 10 }
+                ]
+            },
+            { // Q8 - Agility
+                dim: 'dim3',
+                th: "เมื่อผู้บริหารมอบหมายงานที่มีความคลุมเครือสูงมาก คุณมีกระบวนการเริ่มต้นทำงานอย่างไร?",
+                en: "When given a task that is very unclear, how do you start?",
+                options: [
+                    { th: "ขอให้ผู้บริหารอธิบายขั้นตอนการทำงานมาเป็นข้อๆ ให้ชัดเจนก่อน", en: "Ask the executive to write out step-by-step instructions first.", val: 0 },
+                    { th: "ลองเดาทางและทำไปก่อนตามความเข้าใจ หากผิดพลาดค่อยแก้ไข", en: "Guess what they want and try doing it; fix it later if it's wrong.", val: 3 },
+                    { th: "หาข้อมูลอ้างอิงจากอดีต และนำกลับไปถามผู้บริหารเพื่อยืนยันขอบเขตงาน", en: "Find old examples and ask the executive to confirm if it's the right track.", val: 7 },
+                    { th: "ตั้งสมมติฐานเชิงธุรกิจ สร้างร่างชิ้นงาน 2-3 ทางเลือก เพื่อตีกรอบความต้องการของผู้บริหารให้ชัดเจน", en: "Make educated guesses and show 2-3 draft options to help make the executive's goal clear.", val: 10 }
+                ]
+            },
+            { // Q9 - Bridge
+                dim: 'dim4',
+                th: "ในการต้องเป็นตัวแทนปฏิเสธคำขอจากผู้บริหารระดับสูงแผนกอื่น คุณใช้หลักการใด?",
+                en: "When you have to reject a request from another senior executive on behalf of your boss, what do you do?",
+                options: [
+                    { th: "แจ้งปฏิเสธไปตามตรง โดยอ้างว่าเป็นคำสั่งจากเจ้านาย", en: "Say no directly, and tell them it is the boss's order.", val: 0 },
+                    { th: "ใช้ภาษาที่สุภาพอ่อนน้อมที่สุดเพื่อรักษาน้ำใจและหลีกเลี่ยงการปะทะ", en: "Use very polite language to be nice and avoid arguments.", val: 3 },
+                    { th: "อธิบายเหตุผลประกอบสั้นๆ เพื่อให้เกิดความเข้าใจตรงกันถึงข้อจำกัด", en: "Give a short reason so they understand the current limits.", val: 7 },
+                    { th: "สื่อสารอย่างมีวาทศิลป์ ปกป้องภาพลักษณ์ของผู้นำ และนำเสนอทางเลือกอื่นที่เหมาะสมทดแทน", en: "Communicate with care, protect the leader's image, and offer other helpful solutions.", val: 10 }
+                ]
+            },
+            { // Q10 - Bridge
+                dim: 'dim4',
+                th: "คุณนิยามบทบาทและคุณค่าของตนเองที่มีต่อบริษัทอย่างไร?",
+                en: "How do you define your value to the company?",
+                options: [
+                    { th: "เป็นผู้สนับสนุนงานธุรการ และคอยรับคำสั่งเพื่อนำไปปฏิบัติ", en: "An admin supporter who follows direct orders.", val: 0 },
+                    { th: "เป็นผู้ประสานงาน ที่คอยตามงานให้เสร็จตามกำหนดเวลา", en: "A coordinator who makes sure work gets done on time.", val: 3 },
+                    { th: "เป็นด่านหน้า ที่ช่วยคัดกรองบุคคลและปกป้องเวลาของผู้บริหาร", en: "A gatekeeper who blocks out people to protect the boss's time.", val: 7 },
+                    { th: "เป็นสะพานเชื่อมเชิงกลยุทธ์ ที่ช่วยผสานเป้าหมาย ลดช่องว่างระหว่างแผนก และเร่งประสิทธิภาพการทำงานทั่วทั้งองค์กร", en: "A strategic bridge that connects goals, breaks down walls between teams, and speeds up work across the company.", val: 10 }
+                ]
+            }
+        ];
+
+        function toggleLang() {
+            currentLang = currentLang === 'th' ? 'en' : 'th';
+            
+            // Re-render current view based on state
+            if (document.getElementById('welcome-screen')) {
+                renderWelcome();
+            } else if (document.getElementById('question-screen')) {
+                renderQuestion();
+            } else if (document.getElementById('results-screen')) {
+                renderResults();
+            }
+        }
+
+        function transitionContent(htmlContent, callback = null) {
+            const container = document.getElementById('app-content');
+            container.classList.remove('show');
+            container.classList.add('hide');
+            
+            setTimeout(() => {
+                container.innerHTML = htmlContent;
+                container.classList.remove('hide');
+                container.classList.add('show');
+                if (callback) {
+                    // Wait for DOM to paint before executing callback (crucial for Chart.js)
+                    requestAnimationFrame(() => {
+                        callback();
+                    });
+                }
+            }, 300); // matches CSS transition
+        }
+
+        function renderWelcome() {
+            scores = { dim1: 0, dim2: 0, dim3: 0, dim4: 0 };
+            currentQuestion = 0;
+            const t = translations[currentLang];
+            
+            const html = `
+                <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-center mt-12">
+                    <div class="w-24 h-24 bg-brand-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                        <svg class="w-12 h-12 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">${t.welcomeTitle}</h2>
+                    <p class="text-slate-600 mb-10 text-sm leading-relaxed max-w-[280px] mx-auto">${t.welcomeDesc}</p>
+                    <button onclick="renderQuestion()" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-brand-500/30 transition transform hover:scale-[1.02] active:scale-95">
+                        ${t.startBtn}
+                    </button>
+                </div>
+            `;
+            transitionContent(html);
+        }
+
+        function renderQuestion() {
+            const t = translations[currentLang];
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            const optionsHtml = q.options.map((opt, idx) => `
+                <button onclick="answerQuestion(${opt.val}, '${q.dim}')" class="w-full text-left p-4 rounded-xl border-2 border-slate-100 hover:border-brand-500 hover:bg-brand-50 focus:border-brand-500 transition-all duration-200 text-sm text-slate-700 shadow-sm mb-3">
+                    ${opt[currentLang]}
+                </button>
+            `).join('');
+
+            const html = `
+                <div id="question-screen" class="flex flex-col h-full mt-4">
+                    <div class="w-full bg-slate-100 h-2 rounded-full mb-6 overflow-hidden">
+                        <div class="bg-brand-500 h-full transition-all duration-500" style="width: ${progress}%"></div>
+                    </div>
+                    
+                    <span class="text-xs font-bold text-brand-500 tracking-wider uppercase mb-2">${t.qPrefix} ${currentQuestion + 1} / ${questions.length}</span>
+                    <h2 class="text-lg font-bold text-slate-800 mb-8 leading-relaxed">${q[currentLang]}</h2>
+                    
+                    <div class="flex-1">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+            transitionContent(html);
+        }
+
+        function answerQuestion(val, dim) {
+            scores[dim] += val;
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                renderQuestion();
+            } else {
+                renderResults();
+            }
+        }
+
+        function getCoachingFeedback(percentage, currentLang) {
+            if (percentage < 50) {
+                return currentLang === 'th' ? 
+                    { 
+                        level: "แบบเดิม (Traditional EA)", 
+                        desc: "กระบวนทัศน์การทำงานของคุณยังมุ่งเน้นที่การปฏิบัติตามคำสั่ง (Directive-driven) และการแก้ปัญหาแบบเส้นตรง (Linear Execution) ซึ่งอาจก่อให้เกิดคอขวด (Bottleneck) ในสภาวะที่องค์กรยุคใหม่ต้องการความคล่องตัวและการตอบสนองอย่างฉับพลัน",
+                        gap: "ขาดการประเมินภาพรวมเชิงระบบ (Systemic Thinking) และยังไม่ได้ดึงศักยภาพของเทคโนโลยีขั้นสูงมาใช้เพื่อลดภาระงานเชิงธุรการ ทำให้สูญเสียทุนทางเวลาไปกับงานที่ไม่ได้สร้างมูลค่าเพิ่ม (Non-value added tasks)",
+                        courses: [
+                            "Foundations of Strategic Thinking & Prioritization",
+                            "AI Tools for Daily Productivity (ChatGPT/Gemini Basics)",
+                            "Proactive Communication & Stakeholder Management"
+                        ]
+                    } : 
+                    { 
+                        level: "Traditional EA", 
+                        desc: "Your paradigm focuses heavily on directive-driven, linear execution. In a modern, fast-paced corporate ecosystem, this approach can inadvertently create bottlenecks during complex situations.",
+                        gap: "There is a need to develop systemic thinking. Currently, valuable time is being absorbed by non-value-added transactional tasks because modern tech-augmentation is not fully utilized.",
+                        courses: [
+                            "Foundations of Strategic Thinking & Prioritization",
+                            "AI Tools for Daily Productivity (ChatGPT/Gemini Basics)",
+                            "Proactive Communication & Stakeholder Management"
+                        ]
+                    };
+            } else if (percentage < 80) {
+                return currentLang === 'th' ? 
+                    { 
+                        level: "กำลังเปลี่ยนผ่าน (Transitioning EA)", 
+                        desc: "คุณมีความสามารถในการนำเครื่องมือดิจิทัลมาประยุกต์ใช้และปรับตัวต่อความเปลี่ยนแปลงได้ดีในระดับปฏิบัติการ อย่างไรก็ตาม ยังจำเป็นต้องเพิ่มมิติการคิดเชิงรุกเพื่อเชื่อมโยงผลลัพธ์ของงานเข้ากับยุทธศาสตร์องค์กร",
+                        gap: "เพื่อยกระดับจากการเป็นผู้ประสานงานชั้นยอด สู่การเป็น 'พันธมิตรเชิงกลยุทธ์' คุณต้องฝึกฝนการคาดการณ์ปัญหาล่วงหน้า (Forecasting) และการบริหารจัดการความคลุมเครือ (Navigating Ambiguity) ด้วยความมั่นใจ",
+                        courses: [
+                            "Prompt Engineering for Business Administration",
+                            "Design Thinking & Problem Solving for Executive Support",
+                            "Advanced Scenario Planning & Agility"
+                        ]
+                    } : 
+                    { 
+                        level: "Transitioning EA", 
+                        desc: "You demonstrate a strong capability in utilizing digital tools and adapting to operational changes. However, there is room to elevate your proactive, macro-level strategic integration.",
+                        gap: "To transition from a high-performing coordinator to a true 'Strategic Partner', you need to enhance your forecasting abilities and confidence in navigating high-ambiguity environments.",
+                        courses: [
+                            "Prompt Engineering for Business Administration",
+                            "Design Thinking & Problem Solving for Executive Support",
+                            "Advanced Scenario Planning & Agility"
+                        ]
+                    };
+            } else {
+                return currentLang === 'th' ? 
+                    { 
+                        level: "ระดับควอนตัม (Quantum Zone)", 
+                        desc: "คุณแสดงสมรรถนะในระดับ 'พันธมิตรเชิงกลยุทธ์' (Strategic Partner) อย่างเต็มรูปแบบ มีความเชี่ยวชาญในการใช้เทคโนโลยีขั้นสูงเพื่อทุ่นแรง มีวิสัยทัศน์กว้างไกล และช่วยปกป้องทุนทางความคิด (Cognitive Bandwidth) ของผู้บริหารได้อย่างเป็นรูปธรรม",
+                        gap: "ความท้าทายในระดับนี้คือการรักษาสมรรถนะสูงสุดท่ามกลางเทคโนโลยีที่เปลี่ยนแปลงอย่างก้าวกระโดด รวมถึงการสถาปนาตนเองเป็นผู้นำทางความคิด (Thought Leader) เพื่อถ่ายทอดขีดความสามารถนี้ให้แก่ทีมงานองค์รวม",
+                        courses: [
+                            "Advanced AI Agent Orchestration & Automation",
+                            "Executive Presence, Diplomacy & Influence",
+                            "Leadership, Coaching & Organizational Change Management"
+                        ]
+                    } : 
+                    { 
+                        level: "Quantum Zone", 
+                        desc: "You operate entirely as a 'Strategic Partner'. You excel at leveraging advanced tech-augmentation, demonstrating deep agility, and tangibly protecting the executive's cognitive bandwidth.",
+                        gap: "The challenge at this elite level is maintaining peak performance amidst exponential technological shifts, and establishing yourself as a thought leader to mentor the broader organizational team.",
+                        courses: [
+                            "Advanced AI Agent Orchestration & Automation",
+                            "Executive Presence, Diplomacy & Influence",
+                            "Leadership, Coaching & Organizational Change Management"
+                        ]
+                    };
+            }
+        }
+
+        function renderResults() {
+            const t = translations[currentLang];
+            
+            // Calculate Percentages (Max scores defined in comment above)
+            const p1 = Math.round((scores.dim1 / 30) * 100);
+            const p2 = Math.round((scores.dim2 / 20) * 100);
+            const p3 = Math.round((scores.dim3 / 30) * 100);
+            const p4 = Math.round((scores.dim4 / 20) * 100);
+
+            // Calculate Pillars based on mapped logic
+            const workMastery = Math.round((p1 + p3) / 2); // Parallel + Agility
+            const techMastery = Math.round((p3 + p2) / 2); // Agility + Tech
+            const peopleMastery = p4; // Bridge
+
+            // Determine overall coaching
+            const overallScore = Math.round((workMastery + techMastery + peopleMastery) / 3);
+            const coaching = getCoachingFeedback(overallScore, currentLang);
+
+            const html = `
+                <div id="results-screen" class="flex flex-col pb-6 pt-2">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-slate-800">${t.resultsTitle}</h2>
+                        <p class="text-sm text-slate-500 mt-1">${t.resultsDesc}</p>
+                    </div>
+
+                    <!-- Radar Chart Container with fixed height to prevent collapsing -->
+                    <div class="w-full h-[280px] bg-white rounded-2xl shadow-sm border border-slate-100 p-2 mb-6 flex-shrink-0">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+
+                    <!-- 3 Pillars Analytics -->
+                    <div class="grid grid-cols-3 gap-2 mb-8">
+                        <div class="bg-brand-50 p-3 rounded-xl text-center border border-brand-100">
+                            <span class="block text-2xl font-bold text-brand-600 mb-1">${workMastery}%</span>
+                            <span class="text-[10px] sm:text-xs font-medium text-slate-600 leading-tight block">${t.pillar1}</span>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-xl text-center border border-blue-100">
+                            <span class="block text-2xl font-bold text-blue-600 mb-1">${techMastery}%</span>
+                            <span class="text-[10px] sm:text-xs font-medium text-slate-600 leading-tight block">${t.pillar2}</span>
+                        </div>
+                        <div class="bg-indigo-50 p-3 rounded-xl text-center border border-indigo-100">
+                            <span class="block text-2xl font-bold text-indigo-600 mb-1">${peopleMastery}%</span>
+                            <span class="text-[10px] sm:text-xs font-medium text-slate-600 leading-tight block">${t.pillar3}</span>
+                        </div>
+                    </div>
+
+                    <!-- Coaching Window -->
+                    <div class="bg-slate-800 rounded-2xl p-5 text-white mb-8 shadow-md">
+                        <div class="flex items-center gap-2 mb-4 text-brand-400">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <h3 class="font-bold text-sm uppercase tracking-wide">${t.coachingTitle}</h3>
+                        </div>
+                        
+                        <div class="mb-5 border-b border-slate-700 pb-4">
+                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">${t.currentState}</h4>
+                            <p class="font-bold text-xl mb-2 text-white">${coaching.level}</p>
+                            <p class="text-slate-300 text-sm leading-relaxed">${coaching.desc}</p>
+                        </div>
+
+                        <div class="mb-5">
+                            <h4 class="text-[10px] font-bold text-brand-300 uppercase tracking-wider mb-2">${t.gapAnalysis}</h4>
+                            <div class="bg-slate-700/50 border border-slate-600 rounded-xl p-3">
+                                <p class="text-brand-50 text-sm leading-relaxed">${coaching.gap}</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-3">${t.recommendedCourses}</h4>
+                            <ul class="space-y-3">
+                                ${coaching.courses.map(course => `
+                                    <li class="flex items-start gap-2 bg-slate-900/50 p-2 rounded-lg border border-slate-700/50">
+                                        <span class="text-emerald-500 mt-0.5 flex-shrink-0">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        </span>
+                                        <span class="text-xs font-medium text-slate-200 leading-snug">${course}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button onclick="renderWelcome()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-4 rounded-xl transition mt-auto">
+                        ${t.retakeBtn}
+                    </button>
+                </div>
+            `;
+            
+            // Pass the initChart function as a callback so it fires ONLY AFTER HTML is in the DOM
+            transitionContent(html, () => {
+                initChart([p1, p2, p3, p4], t);
+            });
+        }
+
+        function initChart(dataArray, tUI) {
+            const ctx = document.getElementById('radarChart');
+            if (!ctx) return;
+
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            // Wrap long labels to multiple lines for a better mobile layout
+            const formatLabel = (text) => {
+                if (text && text.includes(' (')) {
+                    const parts = text.split(' (');
+                    return [parts[0], '(' + parts[1]];
+                }
+                return text;
+            };
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [formatLabel(tUI.dim1), formatLabel(tUI.dim2), formatLabel(tUI.dim3), formatLabel(tUI.dim4)],
+                    datasets: [{
+                        label: 'Score',
+                        data: dataArray,
+                        backgroundColor: 'rgba(20, 184, 166, 0.2)', // Teal-500 with opacity
+                        borderColor: 'rgba(20, 184, 166, 1)',
+                        pointBackgroundColor: 'rgba(20, 184, 166, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(20, 184, 166, 1)',
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            // CRITICAL FIX: Lock the scale to 0-100 accurately
+                            min: 0,
+                            max: 100,
+                            beginAtZero: true,
+                            angleLines: { color: 'rgba(0,0,0,0.05)' },
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            pointLabels: {
+                                font: {
+                                    family: "'Inter', 'Prompt', sans-serif",
+                                    size: 10,
+                                    weight: '600'
+                                },
+                                color: '#475569' // slate-600
+                            },
+                            ticks: {
+                                display: false, // Hide numeric axis scale for clean UI
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw.toFixed(0) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Boot the app
+        renderWelcome();
+
+    </script>
+</body>
+</html>
