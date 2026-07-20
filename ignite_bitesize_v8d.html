@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IGNITE Consultant: The Quantum Paradigm Shift</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        obsidian: '#050505',
+                        obsidianLight: '#0B0B0F',
+                        cyanGlow: '#0ea5e9',   /* Sky 500 */
+                        cyanBright: '#38bdf8', /* Sky 400 */
+                        cyanMuted: '#bae6fd',
+                    },
+                    fontFamily: {
+                        sans: ['"Prompt"', 'sans-serif'],
+                    },
+                    fontSize: {
+                        'huge': 'clamp(4rem, 8vw, 120px)',
+                        'massive': 'clamp(5rem, 10vw, 160px)',
+                        'body-large': 'clamp(1.5rem, 3vw, 40px)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --base-text-scale: 100%;
+        }
+        
+        html {
+            font-size: var(--base-text-scale);
+            transition: font-size 0.3s ease-out;
+            background-color: #050505;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; 
+            color: #ffffff;
+            font-family: 'Prompt', sans-serif;
+            background-color: #050505;
+            user-select: none;
+        }
+
+        /* Canvas Background */
+        #quantum-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* 16:9 Presentation Stage */
+        #stage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 56.25vw; /* 16:9 aspect ratio */
+            max-height: 100vh;
+            max-width: 177.78vh; /* 16:9 aspect ratio */
+            z-index: 10;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Scene Mechanics */
+        .scene {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 5%;
+        }
+
+        .scene.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 20;
+        }
+
+        /* Step Animation Mechanics (Building elements within a scene) */
+        .step {
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .step.active-step {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            z-index: 2;
+            transition-delay: 0.1s;
+        }
+
+        .step.past-step {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-40px) scale(1.05);
+            filter: blur(15px);
+            z-index: 1;
+        }
+
+        /* Typography & Aesthetics */
+        .text-glow { text-shadow: 0 0 30px rgba(56, 189, 248, 0.5); }
+        .box-glow {
+            box-shadow: 0 0 40px rgba(14, 165, 233, 0.1), inset 0 0 20px rgba(14, 165, 233, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        /* Intro Sequence Animations */
+        @keyframes particleReveal {
+            0% { transform: scale(0); opacity: 0; box-shadow: 0 0 0 rgba(56,189,248,0); }
+            30% { transform: scale(1); opacity: 1; box-shadow: 0 0 50px rgba(56,189,248,1); }
+            60% { transform: scale(100); opacity: 0; }
+            100% { transform: scale(100); opacity: 0; }
+        }
+        @keyframes fadeInLogo {
+            0% { opacity: 0; filter: blur(20px); transform: scale(0.8) translateY(20px); }
+            40% { opacity: 1; filter: blur(0px); transform: scale(1.05) translateY(0); }
+            70% { opacity: 1; filter: blur(0px); transform: scale(1) translateY(0); }
+            100% { opacity: 1; filter: blur(0px); transform: scale(1) translateY(0); }
+        }
+        
+        .intro-particle {
+            width: 10px; height: 10px; background: #38bdf8; border-radius: 50%;
+            animation: particleReveal 3s ease-in-out forwards;
+        }
+        
+        #intro-overlay { cursor: pointer; }
+        #intro-overlay:hover .intro-logo { filter: drop-shadow(0 0 50px rgba(56,189,248,0.9)); transform: scale(1.05); }
+
+        /* Typewriter */
+        @keyframes typing { from { width: 0; opacity: 1; } to { width: 100%; opacity: 1; } }
+        .typewriter-text {
+            display: inline-block; overflow: hidden; white-space: nowrap;
+            border-right: 2px solid #38bdf8; opacity: 0; width: 0; vertical-align: bottom;
+        }
+        .active-step .typewriter-text { animation: typing 2.5s steps(80, end) forwards, blink-caret .75s step-end infinite; }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #38bdf8; } }
+
+        /* Progress Bar */
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 4px; background-color: rgba(255, 255, 255, 0.05); width: 100%; z-index: 50; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #0284c7, #38bdf8); width: 0%; transition: width 0.3s ease; }
+
+        /* Dashboard Build-up using CSS Keyframes for stability */
+        .dash-element { opacity: 0; transform: translateY(20px); }
+        .active-step .dash-element { animation: dashFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes dashFadeIn { to { opacity: 1; transform: translateY(0); } }
+        
+        .dash-scale { opacity: 0; transform: scale(0.95); }
+        .active-step .dash-scale { animation: dashScaleIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes dashScaleIn { to { opacity: 1; transform: scale(1); } }
+        
+        .dash-slide-right { opacity: 0; transform: translateX(-20px); }
+        .active-step .dash-slide-right { animation: dashRightIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes dashRightIn { to { opacity: 1; transform: translateX(0); } }
+
+        /* Mindset Diagrams */
+        .node-linear { opacity: 0; transform: translateY(20px); }
+        .active-step .node-linear { animation: dashFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        .node-quantum { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+        .active-step .node-quantum { animation: quantumScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes quantumScale { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+        .q-line { stroke-dasharray: 1000; stroke-dashoffset: 1000; opacity: 0; }
+        .active-step .q-line { animation: drawLine 1.5s ease-in-out forwards; opacity: 1; }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+    </style>
+</head>
+<body class="bg-obsidian text-white antialiased">
+
+    <canvas id="quantum-canvas"></canvas>
+
+    <!-- Intro Sequence Overlay -->
+    <div id="intro-overlay" class="fixed inset-0 z-[100] bg-obsidian flex flex-col items-center justify-center transition-opacity duration-1000" onclick="startPresentation()">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoNTYsMTg5LDI0OCwwLjA1KSIvPjwvc3ZnPg==')] opacity-0 transition-opacity duration-[3000ms]" id="intro-grid"></div>
+        
+        <div class="relative flex flex-col items-center justify-center h-full w-full">
+            <div class="absolute intro-particle" id="intro-spark"></div>
+            
+            <img src="2019 ITC Logo INVERT_4.png" alt="IGNITE The Consultant Company" class="h-24 md:h-32 object-contain z-10 drop-shadow-[0_0_30px_rgba(56,189,248,0.5)] transition-all duration-500 intro-logo" id="main-intro-logo" style="opacity: 0; filter: blur(20px); transform: scale(0.8) translateY(20px);" onerror="this.style.display='none'; document.getElementById('intro-fallback').style.display='block';">
+            
+            <div id="intro-fallback" class="hidden text-6xl font-bold tracking-widest text-white z-10 text-center intro-logo" style="opacity: 0;">IGNITE<br><span class="text-3xl text-cyanBright mt-4 block">The Consultant Company</span></div>
+            
+            <div class="absolute bottom-1/4 text-center" id="intro-text-block" style="opacity: 0; transform: translateY(20px); filter: blur(10px);">
+                <div class="text-cyanBright tracking-[0.4em] uppercase text-xl font-bold animate-pulse">Click Logo to Initiate</div>
+                <div class="text-4xl text-gray-300 font-light mt-2">Quantum Strategy Engine</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Elements -->
+    <div class="fixed top-0 bottom-0 left-0 w-[15%] z-[60] flex items-center justify-start px-8 group cursor-pointer transition-colors duration-500 hover:bg-gradient-to-r hover:from-cyanGlow/5 hover:to-transparent" onclick="prevStep()" title="Previous">
+        <div class="text-cyanBright opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-x-4 group-hover:translate-x-0">
+            <svg class="w-16 h-16 drop-shadow-[0_0_15px_rgba(56,189,248,0.8)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path></svg>
+        </div>
+    </div>
+    
+    <div class="fixed top-0 bottom-0 right-0 w-[15%] z-[60] flex items-center justify-end px-8 group cursor-pointer transition-colors duration-500 hover:bg-gradient-to-l hover:from-cyanGlow/5 hover:to-transparent" onclick="nextStep()" title="Next">
+        <div class="text-cyanBright opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+            <svg class="w-16 h-16 drop-shadow-[0_0_15px_rgba(56,189,248,0.8)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path></svg>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[60] flex items-center gap-4 bg-obsidianLight/80 p-2 rounded-full border border-white/5 backdrop-blur-md opacity-20 hover:opacity-100 transition-opacity duration-300">
+        <button class="w-10 h-10 rounded-full text-gray-400 hover:text-cyanBright hover:bg-white/5 transition-colors flex items-center justify-center font-bold text-sm" onclick="changeFontSize(-10)">A-</button>
+        <div class="w-px h-4 bg-white/20"></div>
+        <button class="w-10 h-10 rounded-full text-gray-400 hover:text-cyanBright hover:bg-white/5 transition-colors flex items-center justify-center font-bold text-lg" onclick="changeFontSize(10)">A+</button>
+    </div>
+
+    <!-- MAIN PRESENTATION STAGE -->
+    <div id="stage">
+        
+        <!-- SCENE 1: Title -->
+        <div class="scene active" id="scene-0">
+            <!-- Step 1: Main Title -->
+            <div class="step active-step">
+                <img src="2019 ITC Logo INVERT_4.png" alt="IGNITE" class="h-20 mb-12 opacity-80" onerror="this.style.display='none';">
+                <h1 class="text-[clamp(2.5rem,5.5vw,85px)] font-bold leading-tight tracking-tight mb-6 text-center">
+                    AI for Business Showcase: <br><span class="text-cyanBright text-glow">Business Mindset Paradigm Shift</span>
+                </h1>
+            </div>
+            
+            <!-- Step 2: Subtitle Sweep -->
+            <div class="step">
+                <div class="w-full h-px bg-gradient-to-r from-transparent via-cyanBright to-transparent mb-12 opacity-50 w-3/4 mx-auto"></div>
+                <p class="text-[clamp(2rem,5vw,60px)] text-gray-200 font-light leading-snug tracking-wide text-center">
+                    Beyond Administrative Automation<br>
+                    <span class="font-semibold text-white mt-4 inline-block">to <span class="text-cyanBright">Strategic Revenue Generation.</span></span>
+                </p>
+            </div>
+        </div>
+
+        <!-- CHAPTER 2: The Hook -->
+        <div class="scene" id="scene-1">
+            <div class="step px-10">
+                <div class="text-[clamp(2rem,3.5vw,50px)] text-gray-400 tracking-[0.3em] uppercase font-bold mb-12">The End Goal</div>
+                <h2 class="text-[clamp(3rem,6vw,80px)] font-bold text-white leading-tight mb-8">
+                    Instant Strategic <span class="text-cyanBright text-glow">Alignment</span>.
+                </h2>
+                <p class="text-[clamp(1.5rem,2.5vw,40px)] text-gray-300 max-w-5xl leading-relaxed font-light mx-auto">
+                    What if AI didn't just write emails, but diagnosed your market blind spots and drafted CEO-level pitches in 12 seconds?
+                </p>
+            </div>
+
+            <!-- Live Dashboard Build-up -->
+            <div class="step w-full h-full p-4 md:p-8 flex items-center justify-center relative">
+                <div class="w-full h-full max-w-[1700px] bg-obsidianLight/90 backdrop-blur-xl border border-cyanBright/30 rounded-2xl flex flex-col overflow-hidden shadow-[0_0_80px_rgba(14,165,233,0.15)] relative z-10">
+                    <!-- Header -->
+                    <div class="bg-black/80 border-b border-white/10 p-4 lg:p-6 flex flex-col gap-2 relative overflow-hidden shrink-0">
+                        <div class="absolute left-0 top-0 w-1.5 h-full bg-cyanBright animate-pulse shadow-[0_0_15px_#38bdf8]"></div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-cyanBright font-mono text-base tracking-widest uppercase">System Initialization // Quantum Prompt Executing</span>
+                            <span class="text-sm text-gray-500 font-mono" id="dash-timer">00:00:12</span>
+                        </div>
+                        <div class="font-mono text-[clamp(1.1rem,1.5vw,22px)] text-gray-300 leading-relaxed typewriter-text">
+                            > ACT AS: Strategic Quantum Advisor. SYNTHESIZE: Market Data, Competitor Intel, Risk Factors. GENERATE: Blind Spot Matrix & C-Level Suggestions.
+                        </div>
+                    </div>
+
+                    <!-- Grid -->
+                    <div class="flex-1 grid grid-cols-12 gap-5 lg:gap-8 p-5 lg:p-8 min-h-0">
+                        <!-- Left Column -->
+                        <div class="col-span-3 flex flex-col gap-5 h-full">
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-5 lg:p-6 flex-1 flex flex-col dash-element min-h-0" style="animation-delay: 2.5s;">
+                                <h3 class="text-sm lg:text-base text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-3"><div class="w-3 h-3 rounded-full bg-blue-400 animate-ping"></div> Market Signals</h3>
+                                <ul class="space-y-5 text-[clamp(1rem,1.3vw,20px)] overflow-y-auto">
+                                    <li class="border-l-4 border-blue-400/50 pl-4"><span class="text-white block font-semibold mb-1">Competitor A:</span> <span class="text-gray-400 leading-snug block">Lowering prices by 15%.</span></li>
+                                    <li class="border-l-4 border-blue-400/50 pl-4"><span class="text-white block font-semibold mb-1">Client Sentiment:</span> <span class="text-gray-400 leading-snug block">Complaining about implementation speed.</span></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-5 lg:p-6 flex-1 flex flex-col dash-element min-h-0" style="animation-delay: 3.2s;">
+                                <h3 class="text-sm lg:text-base text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-3"><div class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></div> Risk Vectors</h3>
+                                <ul class="space-y-5 text-[clamp(1rem,1.3vw,20px)] overflow-y-auto">
+                                    <li class="border-l-4 border-rose-500/50 pl-4"><span class="text-white block font-semibold mb-1">Margin Compression:</span> <span class="text-gray-400 leading-snug block">-20% margin YoY if matching prices.</span></li>
+                                    <li class="border-l-4 border-rose-500/50 pl-4"><span class="text-white block font-semibold mb-1">Internal Burnout:</span> <span class="text-gray-400 leading-snug block">Ops team at 95% capacity.</span></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Center Column -->
+                        <div class="col-span-5 flex flex-col h-full">
+                            <div class="bg-gradient-to-br from-cyanGlow/10 to-transparent border border-cyanBright/40 rounded-xl p-6 lg:p-8 h-full flex flex-col dash-scale box-glow min-h-0 relative overflow-hidden" style="animation-delay: 4.5s;">
+                                <div class="flex justify-between items-center mb-6 shrink-0">
+                                    <h3 class="text-lg lg:text-xl text-cyanBright uppercase tracking-widest font-bold">The Blind Spot Insight</h3>
+                                    <svg class="w-6 h-6 lg:w-8 lg:h-8 text-cyanBright animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div class="flex-1 flex flex-col justify-evenly">
+                                    <p class="text-[clamp(1.2rem,1.6vw,24px)] text-gray-300 font-light italic border-l-4 border-gray-600 pl-6 mb-6">"Competitors are fighting over software pricing..."</p>
+                                    <div class="relative mb-6">
+                                        <div class="absolute -inset-1 bg-cyanBright opacity-20 blur-lg rounded-lg"></div>
+                                        <p class="relative text-[clamp(1.4rem,2vw,30px)] text-white font-semibold leading-snug bg-black/60 p-6 lg:p-8 rounded-lg border border-cyanBright/50 shadow-2xl">
+                                            Clients don't want cheaper software. They want <span class="text-cyanBright drop-shadow-[0_0_10px_#38bdf8]">predictive risk mitigation</span> before their board meetings.
+                                        </p>
+                                    </div>
+                                    <div class="bg-emerald-900/40 border-2 border-emerald-500/60 p-5 lg:p-6 rounded-lg shrink-0 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+                                        <span class="text-emerald-400 text-sm lg:text-base uppercase tracking-widest font-bold block mb-2">New Revenue Stream Identified</span>
+                                        <span class="text-[clamp(1.1rem,1.4vw,22px)] text-white block leading-tight font-medium">Pivot from SaaS Tool to Premium Advisory Retainer. (+300% Margin)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-span-4 flex flex-col gap-4 h-full min-h-0">
+                            <h3 class="text-sm lg:text-base text-gray-400 uppercase tracking-widest mb-2 shrink-0 dash-element" style="animation-delay: 5.5s;">Strategic Alignment Vectors</h3>
+                            
+                            <div class="bg-black/60 border border-white/5 rounded-xl p-5 lg:p-6 border-l-4 border-indigo-500 dash-slide-right flex-1 flex flex-col justify-center" style="animation-delay: 6s;">
+                                <div class="text-[11px] lg:text-sm text-indigo-400 uppercase tracking-widest mb-2 font-bold">For: Growth CEO</div>
+                                <div class="text-base lg:text-xl text-white font-bold mb-2">Positioning Pitch</div>
+                                <div class="text-sm lg:text-base text-gray-300 leading-relaxed">Frame this as "Market Disruption." We aren't selling software; we are selling a new industry standard.</div>
+                            </div>
+                            
+                            <div class="bg-black/60 border border-white/5 rounded-xl p-5 lg:p-6 border-l-4 border-rose-500 dash-slide-right flex-1 flex flex-col justify-center" style="animation-delay: 6.5s;">
+                                <div class="text-[11px] lg:text-sm text-rose-400 uppercase tracking-widest mb-2 font-bold">For: Risk-Averse CFO</div>
+                                <div class="text-base lg:text-xl text-white font-bold mb-2">Financial Pitch</div>
+                                <div class="text-sm lg:text-base text-gray-300 leading-relaxed">Zero new cap-ex required. We bundle existing tools with human advisory, multiplying margins.</div>
+                            </div>
+
+                            <div class="bg-black/60 border border-white/5 rounded-xl p-5 lg:p-6 border-l-4 border-emerald-500 dash-slide-right flex-1 flex flex-col justify-center" style="animation-delay: 7s;">
+                                <div class="text-[11px] lg:text-sm text-emerald-400 uppercase tracking-widest mb-2 font-bold">For: VP of Operations</div>
+                                <div class="text-base lg:text-xl text-white font-bold mb-2">Execution Pitch</div>
+                                <div class="text-sm lg:text-base text-gray-300 leading-relaxed">Reduces team workload. AI handles data processing; team transitions to relationship management.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 3: The Trap -->
+        <div class="scene" id="scene-2">
+            <div class="step px-10">
+                <div class="text-[clamp(1.5rem,2.5vw,35px)] text-cyanBright tracking-[0.4em] uppercase font-bold mb-12 text-glow">The Trap</div>
+                <h2 class="text-[clamp(3rem,5vw,70px)] font-bold text-white leading-tight mb-8 max-w-6xl mx-auto">
+                    Right now, you are thinking: <br>
+                    <span class="text-gray-400 font-light italic">"I need to write that prompt down."</span>
+                </h2>
+            </div>
+
+            <div class="step px-10">
+                <div class="text-[clamp(1.5rem,2vw,30px)] text-rose-500 tracking-[0.4em] uppercase font-bold mb-12 text-glow">The Prompt Hunter</div>
+                
+                <div class="bg-white/5 p-12 rounded-3xl border border-rose-500/30 max-w-5xl shadow-[0_0_50px_rgba(244,63,94,0.1)] text-center relative overflow-hidden mx-auto">
+                    <div class="absolute inset-0 bg-gradient-to-br from-rose-900/20 to-transparent"></div>
+                    <p class="relative z-10 text-[clamp(1.5rem,2.5vw,40px)] text-gray-300 font-light leading-relaxed">
+                        You scour the internet for templates, hoping one of them is the <span class="text-white font-bold">magic key</span> to strategy.
+                    </p>
+                    <p class="relative z-10 text-[clamp(1.2rem,2vw,30px)] text-rose-400 mt-8 font-mono">
+                        > And when you use them, they fail.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step px-10">
+                <div class="text-[clamp(1.5rem,2.5vw,35px)] text-cyanBright tracking-[0.4em] uppercase font-bold mb-12 text-glow">Why Prompts Fail</div>
+                <h2 class="text-[clamp(3rem,5vw,70px)] font-bold text-white leading-tight mb-16 max-w-6xl mx-auto">
+                    You ask the AI for an output, but you haven't defined the <span class="text-cyanBright border-b-4 border-cyanBright">architecture</span> of the problem.
+                </h2>
+                
+                <div class="flex gap-12 text-left max-w-5xl w-full mx-auto">
+                    <div class="flex-1 bg-white/5 p-8 rounded-2xl border-l-4 border-rose-500">
+                        <div class="text-xl text-rose-400 font-bold mb-2 uppercase tracking-wide">The Hunter's Flaw</div>
+                        <p class="text-2xl text-gray-300 font-light">You don't know what you really want.</p>
+                    </div>
+                    <div class="flex-1 bg-white/5 p-8 rounded-2xl border-l-4 border-rose-500">
+                        <div class="text-xl text-rose-400 font-bold mb-2 uppercase tracking-wide">The AI's Limitation</div>
+                        <p class="text-2xl text-gray-300 font-light">You don't know what the AI is actually capable of synthesizing.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 4: The Mindset Topography (Enlarged Quantum Mindset) -->
+        <div class="scene" id="scene-3">
+            
+            <!-- Step 1: The Traditional Mindset -->
+            <div class="step w-full h-full flex items-center justify-center relative">
+                <div class="absolute top-16 left-1/2 -translate-x-1/2 text-[clamp(1.5rem,2vw,30px)] text-gray-500 tracking-[0.4em] uppercase font-bold mb-12 w-full text-center">The Traditional Mindset</div>
+                
+                <div class="flex flex-col items-center mt-12 gap-8">
+                    <!-- Trigger -->
+                    <div class="node-linear bg-[#0f0f15] border border-white/10 p-6 rounded-2xl w-80 text-center shadow-lg" style="animation-delay: 0.2s;">
+                        <span class="text-gray-500 text-[11px] uppercase tracking-[0.2em] block mb-2 font-semibold">Trigger</span>
+                        <span class="text-white text-2xl font-bold">See a Problem</span>
+                    </div>
+                    
+                    <!-- Line -->
+                    <svg class="w-1 h-12 text-gray-600 node-linear" style="animation-delay: 0.8s;" fill="none" stroke="currentColor" viewBox="0 0 4 48"><path stroke-width="2" stroke-dasharray="6 6" d="M2 0v48"/></svg>
+
+                    <!-- Action -->
+                    <div class="node-linear bg-[#0f0f15] border border-white/10 p-6 rounded-2xl w-80 text-center shadow-lg" style="animation-delay: 1.2s;">
+                        <span class="text-gray-500 text-[11px] uppercase tracking-[0.2em] block mb-2 font-semibold">Action</span>
+                        <span class="text-white text-2xl font-bold">Ask AI for Solution</span>
+                    </div>
+
+                    <!-- Line -->
+                    <svg class="w-1 h-12 text-gray-600 node-linear" style="animation-delay: 1.8s;" fill="none" stroke="currentColor" viewBox="0 0 4 48"><path stroke-width="2" stroke-dasharray="6 6" d="M2 0v48"/></svg>
+
+                    <!-- Result -->
+                    <div class="node-linear bg-[#131015] border border-red-500/40 p-6 rounded-2xl w-80 text-center shadow-[0_0_30px_rgba(239,68,68,0.1)]" style="animation-delay: 2.2s;">
+                        <span class="text-red-400 text-[11px] uppercase tracking-[0.2em] block mb-2 font-semibold">Result</span>
+                        <span class="text-white text-2xl font-bold">Generic Output</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Enlarged Quantum Mindmap -->
+            <div class="step w-full h-full flex flex-col items-center justify-center">
+                
+                <div class="text-[clamp(1.8rem,2.5vw,36px)] text-cyanBright tracking-[0.4em] uppercase font-bold text-glow mb-8 z-50 text-center w-full">The Quantum Mindset</div>
+                
+                <!-- Expanded Canvas Container (1300px width) -->
+                <div class="relative w-[1300px] h-[650px] max-w-[95vw] mx-auto flex items-center justify-center">
+                    
+                    <!-- SVG Connections Overlay (Recalibrated for widened node coordinate grid) -->
+                    <svg class="absolute inset-0 w-full h-full z-10 pointer-events-none">
+                        <line x1="12%" y1="30%" x2="50%" y2="50%" class="q-line" stroke="rgba(56,189,248,0.5)" stroke-width="2.5" style="animation-delay: 1.2s;"/>
+                        <line x1="12%" y1="70%" x2="50%" y2="50%" class="q-line" stroke="rgba(56,189,248,0.5)" stroke-width="2.5" style="animation-delay: 1.2s;"/>
+                        
+                        <line x1="88%" y1="30%" x2="50%" y2="50%" class="q-line" stroke="rgba(56,189,248,0.5)" stroke-width="2.5" style="animation-delay: 1.2s;"/>
+                        <line x1="88%" y1="70%" x2="50%" y2="50%" class="q-line" stroke="rgba(56,189,248,0.5)" stroke-width="2.5" style="animation-delay: 1.2s;"/>
+                        
+                        <line x1="50%" y1="6%" x2="50%" y2="50%" class="q-line" stroke="rgba(16,185,129,0.6)" stroke-width="2.5" stroke-dasharray="6 6" style="animation-delay: 2.2s;"/>
+                        <line x1="50%" y1="94%" x2="50%" y2="50%" class="q-line" stroke="rgba(99,102,241,0.6)" stroke-width="2.5" stroke-dasharray="6 6" style="animation-delay: 2.2s;"/>
+                    </svg>
+
+                    <!-- Central Core (Perfectly Centered at 50%, 50%) -->
+                    <div class="node-quantum absolute z-40 w-52 h-52 bg-black border-2 border-cyanBright rounded-full flex flex-col items-center justify-center shadow-[0_0_60px_rgba(14,165,233,0.4)]" style="top: 50%; left: 50%; animation-delay: 0.2s;">
+                        <span class="text-cyanBright text-xs uppercase tracking-widest font-bold mb-1.5 animate-pulse">Core Synthesis</span>
+                        <span class="text-white text-4xl font-bold tracking-wider">MINDSET</span>
+                    </div>
+
+                    <!-- Enriched Floating Input Nodes (Left Side) -->
+                    <div class="node-quantum absolute z-20 bg-black/85 border-2 border-cyanGlow/40 p-6 rounded-2xl w-[310px] backdrop-blur-md text-left box-glow" style="top: 30%; left: 12%; animation-delay: 0.5s;">
+                        <div class="text-cyanBright text-xs uppercase tracking-widest mb-1.5 font-bold">Inputs</div>
+                        <div class="text-white text-xl font-bold">Cross-Industry Data</div>
+                        <div class="text-gray-400 text-sm mt-2 leading-snug">Seeing patterns outside your immediate sector.</div>
+                    </div>
+
+                    <div class="node-quantum absolute z-20 bg-black/85 border-2 border-cyanGlow/40 p-6 rounded-2xl w-[310px] backdrop-blur-md text-left box-glow" style="top: 70%; left: 12%; animation-delay: 0.6s;">
+                        <div class="text-cyanBright text-xs uppercase tracking-widest mb-1.5 font-bold">Context</div>
+                        <div class="text-white text-xl font-bold">Systemic Risk</div>
+                        <div class="text-gray-400 text-sm mt-2 leading-snug">Mapping how solving 'A' breaks 'B' and 'C'.</div>
+                    </div>
+
+                    <!-- Enriched Floating Observation/Projection Nodes (Right Side) -->
+                    <div class="node-quantum absolute z-20 bg-black/85 border-2 border-cyanGlow/40 p-6 rounded-2xl w-[310px] backdrop-blur-md text-left box-glow" style="top: 30%; left: 88%; animation-delay: 0.7s;">
+                        <div class="text-cyanBright text-xs uppercase tracking-widest mb-1.5 font-bold">Observation</div>
+                        <div class="text-white text-xl font-bold">Hidden Agendas</div>
+                        <div class="text-gray-400 text-sm mt-2 leading-snug">Understanding human fear behind boardroom decisions.</div>
+                    </div>
+
+                    <div class="node-quantum absolute z-20 bg-black/85 border-2 border-cyanGlow/40 p-6 rounded-2xl w-[310px] backdrop-blur-md text-left box-glow" style="top: 70%; left: 88%; animation-delay: 0.8s;">
+                        <div class="text-cyanBright text-xs uppercase tracking-widest mb-1.5 font-bold">Projection</div>
+                        <div class="text-white text-xl font-bold">2nd-Order Effects</div>
+                        <div class="text-gray-400 text-sm mt-2 leading-snug">Anticipating competitor's reaction before it happens.</div>
+                    </div>
+
+                    <!-- Synthesized Higher Dimension Outputs (Top / Bottom) -->
+                    <div class="node-quantum absolute z-30 bg-[#041c16] border-2 border-emerald-500/50 p-5 rounded-2xl w-[280px] backdrop-blur-md text-center shadow-[0_0_40px_rgba(16,185,129,0.25)]" style="top: 6%; left: 50%; animation-delay: 1.8s;">
+                        <div class="text-emerald-400 text-xs uppercase tracking-widest font-bold mb-1.5">Result 1</div>
+                        <div class="text-white text-2xl font-bold">Actionable Matrix</div>
+                    </div>
+
+                    <div class="node-quantum absolute z-30 bg-[#0d0f20] border-2 border-indigo-500/50 p-5 rounded-2xl w-[280px] backdrop-blur-md text-center shadow-[0_0_40px_rgba(99,102,241,0.25)]" style="top: 94%; left: 50%; animation-delay: 1.8s;">
+                        <div class="text-indigo-400 text-xs uppercase tracking-widest font-bold mb-1.5">Result 2</div>
+                        <div class="text-white text-2xl font-bold">Unseen Revenue</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 5: The Context of Failure (BANI Grid Design) -->
+        <div class="scene" id="scene-4">
+            <div class="step px-10 w-full h-full flex flex-col justify-center items-center">
+                <!-- Top Concept Text Area -->
+                <div class="text-center mb-10 max-w-5xl">
+                    <div class="text-[clamp(1.5rem,2vw,30px)] text-cyanBright tracking-[0.3em] uppercase font-bold mb-4 text-glow">The Context of Failure</div>
+                    <p class="text-[clamp(1.2rem,1.8vw,26px)] text-gray-300 leading-relaxed font-light">
+                        In a BANI world, solving one problem directly (A to B) often creates three new, incomprehensible problems. 
+                        <br>
+                        <span class="text-white font-semibold mt-1 inline-block">Linear prompts cannot solve non-linear chaos.</span>
+                    </p>
+                </div>
+                
+                <!-- Beautiful 2x2 Grid Layout representing B-A-N-I -->
+                <div class="grid grid-cols-2 gap-8 w-full max-w-6xl">
+                    <!-- B: Brittle -->
+                    <div class="bg-gradient-to-br from-red-500/10 to-transparent border border-red-500/30 rounded-2xl p-6 flex flex-col justify-between text-left transition-transform duration-300 hover:scale-105 hover:border-red-500/60 shadow-[0_0_20px_rgba(239,68,68,0.05)]">
+                        <div>
+                            <span class="text-[clamp(2.5rem,3.5vw,50px)] font-black text-red-500 tracking-tight leading-none">B<span class="text-white font-light text-2xl lowercase tracking-normal">rittle</span></span>
+                            <div class="text-red-400 font-semibold tracking-wider uppercase text-sm mt-2">ความเปราะบาง ขาดความเสถียร</div>
+                        </div>
+                        <p class="text-gray-300 text-lg mt-4 font-light">
+                            ระบบทางธุรกิจที่เราเชื่อว่าแข็งแกร่งสามารถล่มสลายลงได้ทันทีอย่างไร้การแจ้งเตือนเมื่อเจอจุดเปลี่ยนเพียงจุดเดียว
+                        </p>
+                    </div>
+
+                    <!-- A: Anxious -->
+                    <div class="bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/30 rounded-2xl p-6 flex flex-col justify-between text-left transition-transform duration-300 hover:scale-105 hover:border-amber-500/60 shadow-[0_0_20px_rgba(245,158,11,0.05)]">
+                        <div>
+                            <span class="text-[clamp(2.5rem,3.5vw,50px)] font-black text-amber-500 tracking-tight leading-none">A<span class="text-white font-light text-2xl lowercase tracking-normal">nxious</span></span>
+                            <div class="text-amber-400 font-semibold tracking-wider uppercase text-sm mt-2">ความกังวลและคาดเดายาก</div>
+                        </div>
+                        <p class="text-gray-300 text-lg mt-4 font-light">
+                            ความรู้สึกไม่มั่นคงและการรับมือความกลัวในห้องประชุม ทำให้เกิดการตัดสินใจที่อิงกับความระแวงมากกว่าโอกาสใหม่ๆ
+                        </p>
+                    </div>
+
+                    <!-- N: Non-linear -->
+                    <div class="bg-gradient-to-br from-cyanBright/10 to-transparent border border-cyanBright/30 rounded-2xl p-6 flex flex-col justify-between text-left transition-transform duration-300 hover:scale-105 hover:border-cyanBright/60 shadow-[0_0_20px_rgba(56,189,248,0.05)]">
+                        <div>
+                            <span class="text-[clamp(2.5rem,3.5vw,50px)] font-black text-cyanBright tracking-tight leading-none">N<span class="text-white font-light text-2xl lowercase tracking-normal">on-linear</span></span>
+                            <div class="text-cyanBright font-semibold tracking-wider uppercase text-sm mt-2">ความสัมพันธ์ไม่เป็นเส้นตรง</div>
+                        </div>
+                        <p class="text-gray-300 text-lg mt-4 font-light">
+                            ผลลัพธ์ไม่ขึ้นตรงกับขนาดของปัจจัยนำเข้า (Input) สิ่งเล็กๆ สามารถสร้างคลื่นกระทบวงกว้างที่คาดไม่ถึงได้อย่างรวดเร็ว
+                        </p>
+                    </div>
+
+                    <!-- I: Incomprehensible -->
+                    <div class="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/30 rounded-2xl p-6 flex flex-col justify-between text-left transition-transform duration-300 hover:scale-105 hover:border-indigo-500/60 shadow-[0_0_20px_rgba(99,102,241,0.05)]">
+                        <div>
+                            <span class="text-[clamp(2.5rem,3.5vw,50px)] font-black text-indigo-500 tracking-tight leading-none">I<span class="text-white font-light text-2xl lowercase tracking-normal">ncomprehensible</span></span>
+                            <div class="text-indigo-400 font-semibold tracking-wider uppercase text-sm mt-2">ความยากเกินกว่าจะเข้าใจ</div>
+                        </div>
+                        <p class="text-gray-300 text-lg mt-4 font-light">
+                            ข้อมูลล้นหลามแต่ขาดความชัดเจน ปัญหาทับซ้อนและไม่มีความเชื่อมโยงที่สามารถวิเคราะห์ด้วยระบบโมเดลเดิมๆ ได้อีกต่อไป
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 6: Alignment / Shadow Board -->
+        <div class="scene" id="scene-5">
+            <!-- Step 1: The Execution Bottleneck -->
+            <div class="step w-full h-full flex flex-col items-center justify-center">
+                <div class="text-[clamp(1.5rem,2vw,30px)] text-gray-500 tracking-[0.5em] uppercase font-bold mb-20 text-center w-full">The Execution Bottleneck</div>
+                
+                <div class="flex justify-between items-center w-full max-w-7xl px-10 relative">
+                    <!-- CEO Side -->
+                    <div class="w-[40%] flex flex-col items-start z-10">
+                        <div class="text-cyanBright font-bold tracking-widest uppercase mb-4 text-xl">The CEO</div>
+                        <div class="text-[clamp(4rem,6vw,100px)] font-bold text-white leading-none tracking-tighter mb-4">GROW</div>
+                        <ul class="text-2xl text-gray-400 space-y-2 border-l-2 border-gray-700 pl-4 text-left">
+                            <li>Capture Market Share</li>
+                            <li>Invest for Speed</li>
+                        </ul>
+                    </div>
+
+                    <!-- The Chasm -->
+                    <div class="absolute left-[35%] right-[35%] h-px bg-red-500/50 border-t-2 border-dashed border-red-500 z-0"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-obsidian px-6 text-red-500 font-bold tracking-[0.3em] uppercase text-xl z-10 border border-red-500/30 rounded-full py-2">Deadlock</div>
+
+                    <!-- CFO Side -->
+                    <div class="w-[40%] flex flex-col items-end text-right z-10">
+                        <div class="text-cyanBright font-bold tracking-widest uppercase mb-4 text-xl">The CFO</div>
+                        <div class="text-[clamp(4rem,6vw,100px)] font-bold text-white leading-none tracking-tighter mb-4">PROTECT</div>
+                        <ul class="text-2xl text-gray-400 space-y-2 border-r-2 border-gray-700 pr-4 text-right">
+                            <li>Control Costs</li>
+                            <li>Minimize Risk</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: The Quantum Alignment -->
+            <div class="step w-full h-full flex flex-col items-center justify-center">
+                <div class="text-[clamp(1.5rem,2vw,30px)] text-cyanBright tracking-[0.5em] uppercase font-bold mb-16 text-center w-full text-glow">Quantum Alignment</div>
+                
+                <div class="flex justify-between items-center w-full max-w-7xl px-10 relative">
+                    <!-- CEO (Faded) -->
+                    <div class="w-[20%] flex flex-col items-center opacity-40">
+                        <div class="text-[clamp(2rem,3vw,50px)] font-bold text-gray-500 leading-none">GROW</div>
+                    </div>
+
+                    <!-- The Bridge -->
+                    <div class="w-[50%] bg-obsidianLight border-2 border-cyanBright/50 p-10 rounded-3xl box-glow flex flex-col items-center z-20 relative transform scale-110 shadow-[0_0_50px_rgba(14,165,233,0.2)]">
+                        <div class="absolute -top-5 bg-cyanBright text-obsidian px-6 py-2 rounded-full font-bold text-sm uppercase tracking-widest shadow-lg">Insight Applied</div>
+                        
+                        <div class="text-center mb-8 mt-4">
+                            <span class="text-gray-300 text-2xl font-light">Pivot to</span><br>
+                            <span class="text-4xl text-white font-bold tracking-wide">Predictive Risk Advisory</span>
+                        </div>
+                        
+                        <div class="flex justify-between w-full pt-6 border-t border-white/10 gap-8">
+                            <div class="w-1/2 text-left">
+                                <div class="text-emerald-400 text-sm font-bold uppercase tracking-widest mb-2 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> CEO Satisfied</div>
+                                <div class="text-gray-300 text-lg">Creates entirely new, high-margin revenue stream.</div>
+                            </div>
+                            <div class="w-1/2 text-right">
+                                <div class="text-emerald-400 text-sm font-bold uppercase tracking-widest mb-2 flex items-center justify-end gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> CFO Satisfied</div>
+                                <div class="text-gray-300 text-lg">Bundles existing assets. Zero new Cap-Ex required.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CFO (Faded) -->
+                    <div class="w-[20%] flex flex-col items-center opacity-40">
+                        <div class="text-[clamp(2rem,3vw,50px)] font-bold text-gray-500 leading-none">PROTECT</div>
+                    </div>
+
+                    <!-- Connecting Energy Lines -->
+                    <div class="absolute left-[10%] right-[10%] top-1/2 h-2 bg-gradient-to-r from-transparent via-cyanBright to-transparent -translate-y-1/2 -z-10 opacity-70">
+                        <div class="w-full h-full bg-cyanBright animate-pulse blur-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 7: The Ultimate Metric -->
+        <div class="scene" id="scene-6">
+            <div class="step w-full h-full flex flex-col justify-center items-center">
+                <div class="text-[clamp(1.5rem,2vw,30px)] text-gray-500 tracking-[0.5em] uppercase font-bold mb-24 text-center">The Ultimate Metric</div>
+                
+                <div class="grid grid-cols-2 gap-x-32 w-full max-w-6xl items-center relative">
+                    <!-- Divider Line -->
+                    <div class="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent transform -translate-x-1/2"></div>
+                    
+                    <!-- Traditional -->
+                    <div class="flex flex-col items-end text-right pr-10">
+                        <div class="text-2xl text-gray-400 uppercase tracking-widest mb-4">Linear Research</div>
+                        <div class="text-[clamp(5rem,8vw,140px)] font-bold text-gray-700 leading-none tracking-tighter">3<br>WEEKS</div>
+                        <div class="text-xl text-gray-500 mt-6 font-light">To find the obvious problem.</div>
+                    </div>
+                    
+                    <!-- Quantum -->
+                    <div class="flex flex-col items-start pl-10">
+                        <div class="text-2xl text-cyanBright uppercase tracking-widest mb-4 text-glow">Quantum Synthesis</div>
+                        <div class="text-[clamp(5rem,8vw,140px)] font-bold text-white leading-none tracking-tighter text-glow">15<br>MINS</div>
+                        <div class="text-xl text-cyanMuted mt-6 font-light">To discover the hidden market.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 8: CTA & Outro (Optimized Prompt Slide without QR Code) -->
+        <div class="scene" id="scene-7">
+            <!-- Step 1 -->
+            <div class="step">
+                <p class="text-[clamp(4rem,7vw,100px)] font-bold leading-tight text-gray-500">
+                    The future<br>doesn't belong<br>to companies<br>with more AI.
+                </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step">
+                <p class="text-[clamp(4rem,7vw,100px)] font-bold leading-tight text-white">
+                    It belongs<br>to companies<br>with a better<br><span class="text-cyanBright text-glow">Mindset.</span>
+                </p>
+            </div>
+
+            <!-- Step 3: Photogenic Prompt Slide (QR Code Removed, Enlarged Blueprint Frame) -->
+            <div class="step w-full max-w-7xl px-10">
+                <div class="flex flex-col gap-6 items-center justify-center bg-obsidianLight/90 border-2 border-cyanBright/30 p-10 rounded-3xl max-w-5xl mx-auto shadow-[0_0_80px_rgba(56,189,248,0.15)] relative overflow-hidden">
+                    
+                    <!-- Top Photography Banner Reminder -->
+                    <div class="flex items-center gap-4 bg-cyanBright/10 border border-cyanBright/50 py-3 px-8 rounded-full mb-2 animate-pulse">
+                        <span class="text-[clamp(1.5rem,2.2vw,30px)]">📸</span>
+                        <p class="text-[clamp(1.3rem,1.8vw,26px)] text-cyanBright font-semibold tracking-wider uppercase">TAKE A PHOTO OR SCREENSHOT TO SAVE</p>
+                    </div>
+
+                    <!-- Entire Width Prompt Block (Optimized for Smartphone Screens & High Legibility) -->
+                    <div class="w-full flex flex-col text-left">
+                        <div class="flex justify-between items-center mb-5 border-b border-white/10 pb-4">
+                            <h3 class="text-[clamp(1.5rem,2.2vw,28px)] text-white uppercase tracking-widest font-bold">The Strategic Architecture Prompt</h3>
+                            <button class="bg-cyanBright/20 hover:bg-cyanBright hover:text-black border border-cyanBright/50 text-cyanBright px-6 py-2.5 rounded-lg font-bold transition-all duration-300 flex items-center gap-2 text-base shadow-md" onclick="copyPrompt()">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                Copy Script
+                            </button>
+                        </div>
+                        
+                        <div class="bg-black/90 p-8 rounded-2xl border-2 border-white/10 font-mono text-[clamp(1.2rem,1.8vw,26px)] text-gray-200 leading-relaxed shadow-inner" id="prompt-text">
+                            <span class="text-cyanBright font-bold">Act as:</span> Quantum Strategic Advisor.<br><br>
+                            "จงสวมบทบาทเป็นที่ปรึกษาเชิงกลยุทธ์ระดับสูงที่มองเห็นความเชื่อมโยงที่คนอื่นมองข้าม<br><br>
+                            <span class="text-cyanBright font-bold">Analyze:</span> วิเคราะห์ข้อมูลต่อไปนี้ <span class="bg-white/15 px-3 py-1 rounded text-white">[ใส่ข้อมูลตลาด, ความเสี่ยง, คู่แข่ง]</span><br><br>
+                            <span class="text-cyanBright font-bold">Task:</span> อย่าเสนอทางแก้ปัญหาแบบเส้นตรง จงหา <span class="text-cyanBright font-bold">"จุดบอด" (Blind Spots)</span> ที่ซ่อนอยู่ และสร้าง <span class="text-emerald-400 font-bold">Dashboard 3 มิติ</span>: 1. โอกาสสร้างรายได้ใหม่ 2. ความเสี่ยงแฝง 3. วิธีโน้มน้าว CEO, CFO และทีมปฏิบัติการ ให้เห็นด้วยกับกลยุทธ์นี้ใน 90 วัน"
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Final Logo -->
+            <div class="step">
+                <p class="text-massive font-bold text-cyanBright text-glow mb-16">Mindset.</p>
+                <div class="text-[clamp(1.5rem,3vw,40px)] text-gray-300 space-y-8 font-light flex flex-col items-center">
+                    <p>Question your assumptions.</p>
+                    <p>Challenge your models.</p>
+                    <p class="text-white font-medium">Discover impossible opportunities.</p>
+                </div>
+            </div>
+
+            <!-- Step 5: Final Closing Slide -->
+            <div class="step">
+                <img src="2019 ITC Logo INVERT_4.png" alt="IGNITE The Consultant Company" class="h-32 mb-16 object-contain drop-shadow-[0_0_40px_rgba(56,189,248,0.5)] mx-auto" onerror="this.style.display='none';">
+                <p class="text-[clamp(1.5rem,3vw,40px)] text-gray-200 font-light leading-relaxed mb-16 max-w-4xl text-center mx-auto">
+                    Transforming Strategy<br>through Quantum Thinking and AI.
+                </p>
+                <div class="text-[clamp(1rem,2vw,24px)] text-cyanMuted uppercase tracking-widest font-medium text-center">
+                    <span class="text-white text-[clamp(1.5rem,3vw,40px)] font-bold block mb-2">Kosit Chunganuwad</span>
+                    Founder & CEO<br>
+                    <span class="text-cyanBright text-[clamp(1.2rem,2vw,28px)] mt-4 inline-block text-glow">IGNITE The Consultant Company</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+    <script>
+        // --- Font Scaling ---
+        let currentFontScale = 100;
+        function changeFontSize(amount) {
+            currentFontScale += amount;
+            if (currentFontScale < 70) currentFontScale = 70;
+            if (currentFontScale > 150) currentFontScale = 150;
+            document.documentElement.style.setProperty('--base-text-scale', `${currentFontScale}%`);
+        }
+
+        // --- Core Presentation Logic (Scenes & Steps) ---
+        const scenes = document.querySelectorAll('.scene');
+        let currentSceneIndex = 0;
+        let currentStepIndex = 0;
+        let isTransitioning = false;
+        let presentationStarted = false;
+
+        function updateProgress() {
+            let totalSteps = 0;
+            let currentAbsoluteStep = 0;
+            
+            scenes.forEach((scene, sIdx) => {
+                const steps = scene.querySelectorAll('.step');
+                totalSteps += steps.length;
+                if (sIdx < currentSceneIndex) {
+                    currentAbsoluteStep += steps.length;
+                } else if (sIdx === currentSceneIndex) {
+                    currentAbsoluteStep += (currentStepIndex + 1);
+                }
+            });
+
+            const progressPct = (currentAbsoluteStep / totalSteps) * 100;
+            document.getElementById('progress').style.width = `${progressPct}%`;
+        }
+
+        function updateView(direction) {
+            if (isTransitioning || !presentationStarted) return;
+            isTransitioning = true;
+
+            const currentScene = scenes[currentSceneIndex];
+            const stepsInScene = currentScene.querySelectorAll('.step');
+
+            if (direction === 'next') {
+                if (currentStepIndex < stepsInScene.length - 1) {
+                    // Advance step
+                    stepsInScene[currentStepIndex].classList.remove('active-step');
+                    stepsInScene[currentStepIndex].classList.add('past-step');
+                    currentStepIndex++;
+                    stepsInScene[currentStepIndex].classList.add('active-step');
+                } else {
+                    // Advance scene
+                    if (currentSceneIndex < scenes.length - 1) {
+                        currentScene.classList.remove('active');
+                        currentSceneIndex++;
+                        currentStepIndex = 0;
+                        
+                        const nextScene = scenes[currentSceneIndex];
+                        nextScene.classList.add('active');
+                        
+                        const nextSteps = nextScene.querySelectorAll('.step');
+                        nextSteps.forEach(s => s.classList.remove('active-step', 'past-step'));
+                        if(nextSteps.length > 0) nextSteps[0].classList.add('active-step');
+                        boostParticles();
+                    }
+                }
+            } else if (direction === 'prev') {
+                if (currentStepIndex > 0) {
+                    // Go back step
+                    stepsInScene[currentStepIndex].classList.remove('active-step');
+                    currentStepIndex--;
+                    stepsInScene[currentStepIndex].classList.remove('past-step');
+                    stepsInScene[currentStepIndex].classList.add('active-step');
+                } else {
+                    // Go back scene
+                    if (currentSceneIndex > 0) {
+                        currentScene.classList.remove('active');
+                        currentSceneIndex--;
+                        
+                        const prevScene = scenes[currentSceneIndex];
+                        prevScene.classList.add('active');
+                        
+                        const prevSteps = prevScene.querySelectorAll('.step');
+                        currentStepIndex = prevSteps.length - 1;
+                        
+                        prevSteps.forEach((s, idx) => {
+                            s.classList.remove('active-step', 'past-step');
+                            if (idx < currentStepIndex) s.classList.add('past-step');
+                            if (idx === currentStepIndex) s.classList.add('active-step');
+                        });
+                        boostParticles();
+                    }
+                }
+            }
+            
+            updateProgress();
+            setTimeout(() => { isTransitioning = false; }, 800); 
+        }
+
+        function nextStep() { updateView('next'); }
+        function prevStep() { updateView('prev'); }
+        
+        function copyPrompt() {
+            const promptText = document.getElementById('prompt-text').innerText;
+            // Use fallback strategy for prompt text selection inside compilations
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = promptText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!presentationStarted) {
+                if(e.key === 'Enter' || e.key === ' ') startPresentation();
+                return;
+            }
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                nextStep();
+            } else if (e.key === 'ArrowLeft') {
+                prevStep();
+            }
+        });
+
+        // --- Cinematic Intro Logic ---
+        window.addEventListener('load', () => {
+            const grid = document.getElementById('intro-grid');
+            const spark = document.getElementById('intro-spark');
+            const logo = document.getElementById('main-intro-logo');
+            const textBlock = document.getElementById('intro-text-block');
+            
+            setTimeout(() => { grid.classList.remove('opacity-0'); }, 500);
+            
+            spark.style.animation = "particleReveal 2s ease-in-out forwards";
+            
+            setTimeout(() => {
+                logo.style.transition = "all 2s ease-out";
+                logo.style.opacity = "1";
+                logo.style.filter = "blur(0px)";
+                logo.style.transform = "scale(1) translateY(0)";
+                
+                const fallback = document.getElementById('intro-fallback');
+                if(fallback) fallback.style.opacity = "1";
+            }, 1500);
+
+            setTimeout(() => {
+                textBlock.style.transition = "all 2s ease-out";
+                textBlock.style.opacity = "1";
+                textBlock.style.transform = "translateY(0)";
+                textBlock.style.filter = "blur(0)";
+            }, 2500);
+        });
+
+        function startPresentation() {
+            if(presentationStarted) return;
+            
+            const overlay = document.getElementById('intro-overlay');
+            const logo = document.getElementById('main-intro-logo');
+            const textBlock = document.getElementById('intro-text-block');
+            
+            logo.style.animation = 'none';
+            const fallback = document.getElementById('intro-fallback');
+            if (fallback) fallback.style.animation = 'none';
+            
+            logo.style.transform = "scale(1.2) translateY(-20px)";
+            logo.style.opacity = "0";
+            logo.style.filter = "blur(10px)";
+            
+            textBlock.style.opacity = "0";
+            
+            setTimeout(() => {
+                overlay.classList.add('opacity-0');
+                presentationStarted = true;
+                
+                // Activate Scene 1
+                if(scenes.length > 0) {
+                    const steps = scenes[0].querySelectorAll('.step');
+                    if(steps.length > 0) steps[0].classList.add('active-step');
+                }
+                
+                boostParticles();
+                updateProgress();
+                setTimeout(() => { overlay.remove(); }, 1500);
+            }, 500);
+        }
+
+        // --- Floating Ambient Particle Engine ---
+        const canvas = document.getElementById('quantum-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
+
+        class Particle {
+            constructor() { this.reset(true); }
+            reset(randomize = false) {
+                this.x = Math.random() * canvas.width;
+                this.y = randomize ? Math.random() * canvas.height : canvas.height + 10;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = -(Math.random() * 0.5 + 0.1);
+                this.radius = Math.random() * 1.5;
+                this.alpha = Math.random() * 0.5;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.y < -10) this.reset();
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(56, 189, 248, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.min(Math.floor((canvas.width * canvas.height) / 12000), 100); 
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+        }
+
+        let speedMultiplier = 1;
+        function boostParticles() { speedMultiplier = 10; }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (speedMultiplier > 1) speedMultiplier *= 0.95; 
+
+            particles.forEach(p => {
+                p.y += p.vy * speedMultiplier;
+                p.x += p.vx * speedMultiplier;
+                if(p.y < 0) p.reset();
+                p.draw();
+            });
+
+            ctx.lineWidth = 0.3;
+            for (let i = 0; i < particles.length; i+=3) {
+                for (let j = i + 1; j < particles.length; j+=3) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    if (dx*dx + dy*dy < 10000) { 
+                        ctx.strokeStyle = `rgba(56, 189, 248, 0.1)`;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animateCanvas();
+
+    </script>
+</body>
+</html>
