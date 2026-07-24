@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Cross-Functional Collaboration Assessment</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font: Sarabun -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    <!-- Chart.js for radar visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- React & Babel for single file runtime execution -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                        sarabun: ['Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: #0b1320; /* Eye-comforting slate blue */
+            color: #f1f5f9; 
+        }
+        .glass-panel {
+            background: rgba(18, 28, 45, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.3);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 189, 248, 0.6);
+        }
+    </style>
+</head>
+<body class="h-full antialiased selection:bg-indigo-500 selection:text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Content dictionary for English and Thai (Master's level business tone)
+        const i18n = {
+            en: {
+                appTitle: "Executive Collaboration Diagnostic",
+                appSubtitle: "Cross-Functional Synergy & Enterprise Alignment Assessment",
+                langToggle: "ไทย",
+                sponsorText: "Powered by IGNITE The Consultant",
+                
+                // PDPA & Privacy Section
+                pdpaBadge: "PDPA Compliance & Data Privacy Protection (Thailand Law)",
+                pdpaTitle: "Zero-Data Retention & Privacy Assurance",
+                pdpaDesc: "In accordance with Thailand's Personal Data Protection Act (PDPA), this self-assessment platform operates with strict privacy-by-design principles.",
+                pdpaBullet1: "No Personal Data Storage: We do not collect, save, or transmit your scores, answers, or identity to any server.",
+                pdpaBullet2: "100% Local Browser Execution: All scoring algorithms run entirely inside your browser session.",
+                pdpaBullet3: "Instant Memory Wipe: Once you take a screen capture (screenshot) and close or refresh the app, all session data is permanently erased.",
+                startAssessmentBtn: "Acknowledge & Begin Diagnostic",
+
+                scaleInfo: "Evaluation Rating Scale (1 - 4)",
+                scaleLabels: {
+                    4: "Consistent Excellence (Always)",
+                    3: "Moderate Proficiency (Often)",
+                    2: "Intermittent Application (Occasionally)",
+                    1: "Minimal Practice (Rarely)"
+                },
+                prevBtn: "Previous",
+                submitBtn: "Generate Strategic Profile Report",
+                retakeBtn: "Re-take Diagnostic",
+                screenshotNotice: "Please capture a screenshot of this screen now to save your confidential report. Closing or refreshing this app will permanently erase all data.",
+
+                resultsTitle: "Strategic Collaboration Profile & Leadership Diagnostic",
+                scoreLabel: "Total Synergy Index Score",
+                benchmarkLabel: "Enterprise Readiness Tier",
+                
+                dimStrategic: "Strategic Vision & Enterprise Alignment",
+                dimRisk: "Proactive Governance & Risk Mitigation",
+                dimSynergy: "Co-creation & Information Transparency",
+                dimRelational: "Relational Capital & Conflict Negotiation",
+
+                archetypes: {
+                    catalyst: {
+                        title: "The Enterprise Strategic Catalyst",
+                        thTitle: "ผู้นำขับเคลื่อนวิสัยทัศน์และการผนึกกำลังองค์กร",
+                        subtitle: "Visionary Integration & Enterprise Synergy Leader",
+                        simpleSummary: "You are an all-round enterprise integrator who connects department goals with big-picture company vision. You eliminate silos and build strong trust.",
+                        desc: "You operate as an exemplary enterprise integrator who seamlessly aligns cross-functional units around shared strategic imperatives. You dismantle functional silos, proactively mitigate operational risks, and cultivate an environment of psychological safety and shared accountability across departments.",
+                        strengths: [
+                            "Drives alignment between department tasks and high-level corporate objectives.",
+                            "Promotes transparent data distribution and proactive risk escalation.",
+                            "Champions co-creation and consensus-driven conflict resolution."
+                        ],
+                        coreRecommendations: [
+                            "Transition from active facilitator to institutional architect by embedding peer-led horizontal networks.",
+                            "Empower middle management to lead cross-functional execution to avoid operational burnout.",
+                            "Formalize collaborative governance templates across organizational business units."
+                        ],
+                        courses: [
+                            { name: "Executive Leadership & Enterprise Alignment Masterclass", focus: "Corporate Strategy & Organizational Matrix Design" },
+                            { name: "Advanced Negotiating & Strategic Influence in Complex Organizations", focus: "Stakeholder Coalition Building & Governance" },
+                            { name: "Strategic Agility & Change Transformation for C-Suite Leaders", focus: "Transformational Leadership & Cultural Integration" }
+                        ]
+                    },
+                    architect: {
+                        title: "The Synergy & Relational Architect",
+                        thTitle: "สถาปนิกผู้เชื่อมโยงมุ่งสร้างความร่วมมือเชิงกลยุทธ์",
+                        subtitle: "High Relational Intelligence & Trust Builder",
+                        simpleSummary: "You excel at building trust, diplomacy, and resolving cross-team conflicts easily. You bring people together with high emotional intelligence.",
+                        desc: "You excel in building psychological trust, establishing social capital, and resolving cross-functional friction with diplomacy. Your strength lies in empathetic negotiation and fostering inclusive dialogue across team boundaries.",
+                        strengths: [
+                            "Exceptional relational capital and diplomatic conflict mediation.",
+                            "Promotes shared credit and psychological safety across diverse teams.",
+                            "Reduces interpersonal friction during cross-departmental projects."
+                        ],
+                        coreRecommendations: [
+                            "Balance your strong relational quotient with structured analytical risk modeling.",
+                            "Set clear time-bound decision gates to prevent consensus building from slowing execution.",
+                            "Institutionalize written alignment agreements alongside informal trust networks."
+                        ],
+                        courses: [
+                            { name: "Enterprise Risk Management & Operational Resilience", focus: "Risk Identification & Predictive Governance" },
+                            { name: "Agile Project Governance & Portfolio Performance", focus: "Optimizing Delivery Timelines in Cross-Functional Initiatives" },
+                            { name: "Design Thinking & Strategic Co-Creation Workshop", focus: "Frameworks for Rapid Problem Solving" }
+                        ]
+                    },
+                    safeguard: {
+                        title: "The Tactical Process Safeguard",
+                        thTitle: "นักบริหารกระบวนการและลดความเสี่ยงข้ามสายงาน",
+                        subtitle: "Operational Efficiency & Pre-emptive Risk Mitigation Leader",
+                        simpleSummary: "You are highly organized and proactive in preventing work duplication and operational risks before problems happen.",
+                        desc: "You are highly disciplined in preventing redundant efforts, pre-empting operational risks, and keeping project mechanics sound. You bring strong accountability and structured execution to cross-departmental workflows.",
+                        strengths: [
+                            "Proactive risk assessment and clear escalation to leadership before disruption.",
+                            "Rigorous focus on eliminating duplicate workflows and operational bottlenecks.",
+                            "Solution-centric mindset during operational friction."
+                        ],
+                        coreRecommendations: [
+                            "Invest time in informal cross-departmental networking beyond immediate task mechanics.",
+                            "Frame process safeguards in terms of business strategic value to C-suite stakeholders.",
+                            "Adopt agile governance principles to allow flexible process adaptation when needed."
+                        ],
+                        courses: [
+                            { name: "Cross-Functional Influence Without Authority", focus: "Stakeholder Engagement & Relational Networking" },
+                            { name: "Strategic Communication & Executive Presence", focus: "Framing Operational Issues in Business Value Language" },
+                            { name: "Conflict Resolution & Win-Win Negotiation in Corporate Settings", focus: "Emotional Intelligence & Mediation" }
+                        ]
+                    },
+                    emerger: {
+                        title: "The Silo Emerger & Developing Collaborator",
+                        thTitle: "ผู้ปรับเปลี่ยนกรอบคิดสู่การประสานพลังระดับองค์กร",
+                        subtitle: "Functional Specialist Transitioning to Holistic Collaborator",
+                        simpleSummary: "You have strong domain skills in your unit and have great potential to expand your impact by reaching across department boundaries.",
+                        desc: "You possess solid functional expertise within your immediate domain, but have significant potential to expand your impact by proactively reaching across department boundaries and championing shared enterprise goals.",
+                        strengths: [
+                            "Deep functional expertise and focus on core operational deliverables.",
+                            "Receptive to developing cross-functional partnerships."
+                        ],
+                        coreRecommendations: [
+                            "Shift mindset from task completion to cross-departmental enterprise value co-creation.",
+                            "Proactively share early-stage operational data with sibling departments without prompting.",
+                            "Initiate informal coffee chats with key cross-functional peers to build relational bridges."
+                        ],
+                        courses: [
+                            { name: "Foundations of Cross-Functional Team Dynamics & Collaboration", focus: "Breaking Down Silos & Shared Value" },
+                            { name: "Proactive Business Communication & Stakeholder Engagement", focus: "Information Sharing & Active Transparency" },
+                            { name: "Emotional Intelligence & Collaborative Mindset in the Workplace", focus: "Building Trust & Shared Accountability" }
+                        ]
+                    }
+                },
+
+                questions: [
+                    { id: 1, en: "I ensure the team understands the shared strategic vision rather than focusing solely on individual duties.", th: "ฉันทำให้ทีมเข้าใจ \"เป้าหมายใหญ่ร่วมกัน\" ไม่ใช่แค่หน้าที่ของตนเอง", dim: "strategic" },
+                    { id: 2, en: "I proactively share crucial information that the team should know, even without being asked.", th: "ฉันแชร์ข้อมูลที่ทีมควรรู้ แม้ไม่มีใครมาขอ", dim: "synergy" },
+                    { id: 3, en: "I actively monitor and prevent inadvertent work redundancies within the team and across other departments.", th: "ฉันระวังไม่ให้มีการทำงานซ้ำซ้อนโดยไม่รู้ตัวทั้งภายในทีมและแผนกอื่น", dim: "risk" },
+                    { id: 4, en: "I evaluate operational risks in advance and inform the team and leadership before problems arise.", th: "ฉันประเมินความเสี่ยงล่วงหน้า และแจ้งทีมรวมถึงหัวหน้าให้ทราบก่อนเกิดปัญหา", dim: "risk" },
+                    { id: 5, en: "I foster a co-creative working style rather than working in isolated silos.", th: "ฉันทำงานแบบช่วยกันคิด ไม่ใช่ต่างคนต่างทำ", dim: "synergy" },
+                    { id: 6, en: "When issues arise, I focus primarily on solution discovery rather than assigning blame.", th: "เมื่อเกิดปัญหา ฉันโฟกัสที่ทางแก้ มากกว่าหาคนผิด", dim: "risk" },
+                    { id: 7, en: "I consistently refrain from stating \"it's not my job\" and demonstrate organizational agility.", th: "ฉันหลีกเลี่ยงการพูดว่า \"ไม่ใช่หน้าที่ฉัน\"", dim: "strategic" },
+                    { id: 8, en: "I actively build professional relationships with other cross-functional teams beyond routine work tasks.", th: "ฉันพยายามสร้างความสัมพันธ์กับทีมอื่น นอกเหนือจากเรื่องงาน", dim: "relational" },
+                    { id: 9, en: "During conflicts, I engage in dialogue to find mutually beneficial solutions rather than defending my own department.", th: "เมื่อมีความขัดแย้ง ฉันพูดคุยเพื่อหาทางออกร่วมกัน ไม่ใช่เพื่อปกป้องฝ่ายตัวเอง", dim: "relational" },
+                    { id: 10, en: "Upon project completion, I acknowledge and attribute credit to all involved internal and external stakeholders.", th: "เมื่องานสำเร็จ ฉันให้เครดิตกับทุกฝ่ายที่เกี่ยวข้อง", dim: "synergy" }
+                ]
+            },
+            th: {
+                appTitle: "เครื่องมือประเมินศักยภาพการประสานงานระดับบริหาร",
+                appSubtitle: "การประเมินการทำงานเป็นทีมและการสร้างพลังทวีคูณข้ามสายงาน (Cross-Functional Synergy Diagnostic)",
+                langToggle: "English",
+                sponsorText: "สนับสนุนโดย บริษัท อิกไนท์เดอะคอนซัลแตนท์",
+                
+                pdpaBadge: "การปฏิบัติตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA Thailand Law)",
+                pdpaTitle: "นโยบายความเป็นส่วนตัวและการไม่จัดเก็บข้อมูลส่วนบุคคล",
+                pdpaDesc: "เพื่อให้เป็นไปตามกฎหมาย พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) ของประเทศไทย ระบบประเมินนี้ถูกออกแบบด้วยหลักการ Privacy-by-Design ขั้นสูงสุด",
+                pdpaBullet1: "ไม่มีการจัดเก็บข้อมูล: ระบบจะไม่บันทึก รวบรวม หรือส่งข้อมูลคำตอบ ผลการประเมิน หรือตัวตนของท่านไปยังเซิร์ฟเวอร์ใดๆ ทั้งสิ้น",
+                pdpaBullet2: "ประมวลผลบนเครื่องของท่าน 100%: การคำนวณคะแนนทั้งหมดเกิดขึ้นภายในเว็บบราวเซอร์บนอุปกรณ์ของท่านเท่านั้น",
+                pdpaBullet3: "ลบข้อมูลทันทีเมื่อปิดหน้าจอ: เมื่อท่านทำการบันทึกภาพหน้าจอ (Screen Capture) และปิดหรือรีเฟรชหน้าเว็บ ข้อมูลทั้งหมดจะถูกลบออกจากหน่วยความจำทันที",
+                startAssessmentBtn: "รับทราบและเริ่มต้นการประเมิน",
+
+                scaleInfo: "เกณฑ์การประเมินตนเอง (Rating Scale 1 - 4)",
+                scaleLabels: {
+                    4: "ทำในระดับดี เป็นประจำสม่ำเสมอ (Always)",
+                    3: "ทำในระดับปานกลาง (Often)",
+                    2: "ทำบ้างแต่ไม่มากนัก (Occasionally)",
+                    1: "ทำน้อย หรือแทบไม่ได้ทำเลย (Rarely)"
+                },
+                prevBtn: "ย้อนกลับ",
+                submitBtn: "ประมวลผลและสร้างรายงานเชิงกลยุทธ์",
+                retakeBtn: "ทำแบบประเมินใหม่",
+                screenshotNotice: "กรุณาถ่ายภาพหน้าจอ (Screenshot / Screen Capture) หน้ารายงานนี้เพื่อบันทึกผลการประเมินของท่าน เนื่องจากระบบจะลบข้อมูลทั้งหมดทันทีเมื่อปิดหรือรีเฟรชหน้าเว็บ",
+
+                resultsTitle: "ผลการประเมินแบบจำลองความร่วมมือและแนวทางการพัฒนาผู้นำ",
+                scoreLabel: "คะแนนดัชนีความร่วมมือรวม (Synergy Index Score)",
+                benchmarkLabel: "ระดับความพร้อมในองค์กร (Enterprise Readiness Tier)",
+                
+                dimStrategic: "การกำหนดวิสัยทัศน์และการสอดรับเชิงกลยุทธ์องค์กร",
+                dimRisk: "การบริหารจัดการกระบวนการและการรับมือความเสี่ยงเชิงรุก",
+                dimSynergy: "การสร้างสรรค์ร่วมกันและการแบ่งปันข้อมูลอย่างโปร่งใส",
+                dimRelational: "การสร้างทุนมนุษย์และการเจรจาไกล่เกลี่ยความขัดแย้ง",
+
+                archetypes: {
+                    catalyst: {
+                        title: "The Enterprise Strategic Catalyst",
+                        thTitle: "ผู้นำขับเคลื่อนวิสัยทัศน์และการผนึกกำลังองค์กร",
+                        subtitle: "Visionary Integration & Enterprise Synergy Leader",
+                        simpleSummary: "คุณคือผู้นำนักบูรณาการตัวจริงที่สามารถเชื่อมเป้าหมายแผนกเข้ากับภาพใหญ่ขององค์กร ทลายกำแพงไซโล และสร้างความไว้วางใจสูง",
+                        desc: "คุณคือผู้นำแบบบูรณาการระดับองค์กรแบบอย่าง (Enterprise Integrator) ที่มีความสามารถโดดเด่นในการเชื่อมโยงเป้าหมายของหน่วยงานเข้ากับวิสัยทัศน์ใหญ่ขององค์กร คุณสามารถทลายกำแพงระหว่างไซโล (Silo Elimination) ประเมินความเสี่ยงเชิงรุก และสร้างวัฒนธรรมความปลอดภัยทางจิตวิทยา (Psychological Safety) ที่ทุกฝ่ายร่วมรับผิดชอบและร่วมยินดีกับความสำเร็จ",
+                        strengths: [
+                            "สามารถเชื่อมโยงภารกิจของทีมเข้ากับเป้าหมายยุทธศาสตร์ใหญ่ขององค์กรได้อย่างสมบูรณ์",
+                            "มีการแบ่งปันข้อมูลสำคัญอย่างโปร่งใสและสื่อสารความเสี่ยงเชิงรุกก่อนเกิดปัญหา",
+                            "มุ่งเน้นการสร้างสรรค์ร่วมกัน (Co-creation) และการแก้ปัญหาขัดแย้งแบบวิน-วิน (Win-Win Solution)"
+                        ],
+                        coreRecommendations: [
+                            "ยกระดับบทบาทจากผู้ประสานงานหลักสู่การเป็นผู้จัดวางสถาปัตยกรรมองค์กรด้วยการสร้างเครือข่ายความร่วมมือแนวราบที่ดำเนินไปได้เอง",
+                            "ควรมอบหมายอำนาจตัดสินใจระดับปฏิบัติการให้ผู้จัดการระดับกลางเพื่อป้องกันภาวะเหนื่อยล้าของตนเอง",
+                            "จัดทำมาตรฐานกระบวนการกำกับดูแลความร่วมมือ (Collaborative Governance Framework) ให้เป็นระบบขององค์กร"
+                        ],
+                        courses: [
+                            { name: "Executive Leadership & Enterprise Alignment Masterclass", focus: "กลยุทธ์องค์กรและการออกแบบโครงสร้าง Matrix Organization" },
+                            { name: "Advanced Negotiating & Strategic Influence in Complex Organizations", focus: "การสร้างภาคีเครือข่ายผู้มีส่วนได้ส่วนเสียและการบริหารธรรมาภิบาล" },
+                            { name: "Strategic Agility & Change Transformation for C-Suite Leaders", focus: "ภาวะผู้นำการเปลี่ยนแปลงและการบูรณาการวัฒนธรรมองค์กร" }
+                        ]
+                    },
+                    architect: {
+                        title: "The Synergy & Relational Architect",
+                        thTitle: "สถาปนิกผู้เชื่อมโยงมุ่งสร้างความร่วมมือเชิงกลยุทธ์",
+                        subtitle: "High Relational Intelligence & Trust Builder",
+                        simpleSummary: "คุณโดดเด่นมากในการสร้างความสัมพันธ์ ความเข้าใจ และไกล่เกลี่ยความขัดแย้งข้ามแผนกได้อย่างละมุนนุ่มนวล",
+                        desc: "คุณมีความโดดเด่นสูงมากด้านความฉลาดทางอารมณ์และการสร้างทุนทางสังคม (Relational Capital) คุณสามารถประสานความขัดแย้งข้ามสายงานได้อย่างนุ่มนวลและทรงประสิทธิภาพ สร้างความไว้เนื้อเชื่อใจ และบรรยากาศการทำงานที่เปี่ยมด้วยการเปิดรับความคิดเห็น",
+                        strengths: [
+                            "มีทุนความสัมพันธ์ที่ดีเยี่ยมและมีความเชี่ยวชาญในการไกล่เกลี่ยข้อขัดแย้งอย่างเป็นมิตร",
+                            "ส่งเสริมวัฒนธรรมการให้เกียรติ การแบ่งปันเครดิตความสำเร็จ และความปลอดภัยทางจิตวิทยา",
+                            "ลดความตึงเครียดด้านสัมพันธภาพระหว่างหน่วยงานได้อย่างดีเยี่ยม"
+                        ],
+                        coreRecommendations: [
+                            "ผสานจุดแข็งด้านสัมพันธภาพเข้ากับการประเมินความเสี่ยงเชิงวิเคราะห์และตัวเลขเชิงระบบ",
+                            "กำหนดกรอบเวลาการตัดสินใจ (Decision Gates) ที่ชัดเจนเพื่อไม่ให้ขั้นตอนการหาฉันทามติส่งผลกระทบต่อความเร็ว",
+                            "สร้างข้อตกลงการทำงานข้ามสายงานที่เป็นลายลักษณ์อักษรควบคู่ไปกับความสัมพันธ์ที่ไม่เป็นทางการ"
+                        ],
+                        courses: [
+                            { name: "Enterprise Risk Management & Operational Resilience", focus: "การระบุความเสี่ยงและการบริหารจัดการความเสี่ยงล่วงหน้า" },
+                            { name: "Agile Project Governance & Portfolio Performance", focus: "การบริหารโครงการแบบ Agile เพื่อเพิ่มความเร็วในการส่งมอบงานข้ามสายงาน" },
+                            { name: "Design Thinking & Strategic Co-Creation Workshop", focus: "กระบวนการคิดเชิงออกแบบเพื่อการแก้ปัญหาและสร้างสรรค์ร่วมกันอย่างรวดเร็ว" }
+                        ]
+                    },
+                    safeguard: {
+                        title: "The Tactical Process Safeguard",
+                        thTitle: "นักบริหารกระบวนการและลดความเสี่ยงข้ามสายงาน",
+                        subtitle: "Operational Efficiency & Pre-emptive Risk Mitigation Leader",
+                        simpleSummary: "คุณเป็นผู้ทำงานเป็นระบบ ป้องกันงานซ้ำซ้อน และแจ้งเตือนความเสี่ยงเชิงรุกก่อนที่ปัญหาจะเกิดได้อย่างดีเยี่ยม",
+                        desc: "คุณเป็นผู้มีความระมัดระวังรอบคอบ วางแผนงานเป็นระบบ และให้ความสำคัญกับการป้องกันความเสี่ยง คุณทำงานอย่างมีประสิทธิภาพสูงในการป้องกันงานซ้ำซ้อน และแจ้งเตือนผู้เกี่ยวข้องก่อนที่ปัญหาจะส่งผลกระทบต่อองค์กร",
+                        strengths: [
+                            "มีการประเมินความเสี่ยงล่วงหน้าและการรายงานผู้บริหารอย่างทันท่วงที",
+                            "มุ่งเน้นการขจัดความซ้ำซ้อนในกระบวนการทำงานและลดคอขวดของการปฏิบัติงาน",
+                            "เน้นการค้นหาทางออกของปัญหา (Solution-oriented) มากกว่าการหาผู้กระทำผิด"
+                        ],
+                        coreRecommendations: [
+                            "เพิ่มการปฏิสัมพันธ์และสร้างความสัมพันธ์ที่ไม่เป็นทางการข้ามสายงาน นอกเหนือจากขั้นตอนปฏิบัติงานปกติ",
+                            "สื่อสารรายงานความเสี่ยงและกระบวนการในรูปแบบการสร้างคุณค่าเชิงกลยุทธ์แก่องค์กร",
+                            "นำหลักการบริหารแบบ Agile มาประยุกต์ใช้เพื่อเพิ่มความยืดหยุ่นของกระบวนการตามสถานการณ์"
+                        ],
+                        courses: [
+                            { name: "Cross-Functional Influence Without Authority", focus: "การสร้างอิทธิพลและการมีส่วนร่วมของผู้มีส่วนได้ส่วนเสียโดยไม่อาศัยตำแหน่ง" },
+                            { name: "Strategic Communication & Executive Presence", focus: "การสื่อสารเชิงกลยุทธ์เพื่อนำเสนอคุณค่าทางธุรกิจแก่ผู้บริหารระดับสูง" },
+                            { name: "Conflict Resolution & Win-Win Negotiation in Corporate Settings", focus: "ความฉลาดทางอารมณ์และการเจรจาต่อรองแบบวิน-วินในองค์กร" }
+                        ]
+                    },
+                    emerger: {
+                        title: "The Silo Emerger & Developing Collaborator",
+                        thTitle: "ผู้ปรับเปลี่ยนกรอบคิดสู่การประสานพลังระดับองค์กร",
+                        subtitle: "Functional Specialist Transitioning to Holistic Collaborator",
+                        simpleSummary: "คุณมีความเชี่ยวชาญสูงในสายงานหลักของตนเอง และมีศักยภาพสูงมากที่จะขยายขอบเขตการทำงานร่วมกับแผนกอื่น",
+                        desc: "คุณมีความเชี่ยวชาญเชิงลึกในสายงานของตนเอง แต่ยังมีโอกาสพัฒนาอย่างสูงในการก้าวข้ามขอบเขตงานเฉพาะส่วน เพื่อสร้างผลกระทบเชิงบวกที่ยิ่งใหญ่ขึ้นให้แก่องค์กรผ่านการประสานพลังข้ามสายงาน",
+                        strengths: [
+                            "มีความเชี่ยวชาญสูงในสายงานหลักของตนเองและส่งมอบงานในรับผิดชอบได้อย่างดี",
+                            "มีความตระหนักและพร้อมเปิดรับพัฒนาศักยภาพการทำงานร่วมกับผู้อื่น"
+                        ],
+                        coreRecommendations: [
+                            "ปรับเปลี่ยนกรอบคิดจากการมุ่งเน้นภารกิจส่วนตน สู่การสร้างคุณค่าร่วมระดับองค์กร (Enterprise Value)",
+                            "เริ่มต้นแบ่งปันข้อมูลและอินไซต์การทำงานให้ทีมอื่นทราบเชิงรุกโดยไม่ต้องรอการร้องขอ",
+                            "สร้างบทสนทนาและกระชับความสัมพันธ์กับเพื่อนร่วมงานต่างแผนกอย่างสม่ำเสมอ"
+                        ],
+                        courses: [
+                            { name: "Foundations of Cross-Functional Team Dynamics & Collaboration", focus: "พื้นฐานการทำงานร่วมกันและการทลายกำแพงระหว่างหน่วยงาน" },
+                            { name: "Proactive Business Communication & Stakeholder Engagement", focus: "การสื่อสารเชิงรุกและการสร้างการมีส่วนร่วมของพันธมิตรภายใน" },
+                            { name: "Emotional Intelligence & Collaborative Mindset in the Workplace", focus: "การพัฒนาความฉลาดทางอารมณ์และการสร้างความเชื่อมั่นร่วมกัน" }
+                        ]
+                    }
+                },
+
+                questions: [
+                    { id: 1, en: "I ensure the team understands the shared strategic vision rather than focusing solely on individual duties.", th: "ฉันทำให้ทีมเข้าใจ \"เป้าหมายใหญ่ร่วมกัน\" ไม่ใช่แค่หน้าที่ของตนเอง", dim: "strategic" },
+                    { id: 2, en: "I proactively share crucial information that the team should know, even without being asked.", th: "ฉันแชร์ข้อมูลที่ทีมควรรู้ แม้ไม่มีใครมาขอ", dim: "synergy" },
+                    { id: 3, en: "I actively monitor and prevent inadvertent work redundancies within the team and across other departments.", th: "ฉันระวังไม่ให้มีการทำงานซ้ำซ้อนโดยไม่รู้ตัวทั้งภายในทีมและแผนกอื่น", dim: "risk" },
+                    { id: 4, en: "I evaluate operational risks in advance and inform the team and leadership before problems arise.", th: "ฉันประเมินความเสี่ยงล่วงหน้า และแจ้งทีมรวมถึงหัวหน้าให้ทราบก่อนเกิดปัญหา", dim: "risk" },
+                    { id: 5, en: "I foster a co-creative working style rather than working in isolated silos.", th: "ฉันทำงานแบบช่วยกันคิด ไม่ใช่ต่างคนต่างทำ", dim: "synergy" },
+                    { id: 6, en: "When issues arise, I focus primarily on solution discovery rather than assigning blame.", th: "เมื่อเกิดปัญหา ฉันโฟกัสที่ทางแก้ มากกว่าหาคนผิด", dim: "risk" },
+                    { id: 7, en: "I consistently refrain from stating \"it's not my job\" and demonstrate organizational agility.", th: "ฉันหลีกเลี่ยงการพูดว่า \"ไม่ใช่หน้าที่ฉัน\"", dim: "strategic" },
+                    { id: 8, en: "I actively build professional relationships with other cross-functional teams beyond routine work tasks.", th: "ฉันพยายามสร้างความสัมพันธ์กับทีมอื่น นอกเหนือจากเรื่องงาน", dim: "relational" },
+                    { id: 9, en: "During conflicts, I engage in dialogue to find mutually beneficial solutions rather than defending my own department.", th: "เมื่อมีความขัดแย้ง ฉันพูดคุยเพื่อหาทางออกร่วมกัน ไม่ใช่เพื่อปกป้องฝ่ายตัวเอง", dim: "relational" },
+                    { id: 10, en: "Upon project completion, I acknowledge and attribute credit to all involved internal and external stakeholders.", th: "เมื่องานสำเร็จ ฉันให้เครดิตกับทุกฝ่ายที่เกี่ยวข้อง", dim: "synergy" }
+                ]
+            }
+        };
+
+        function App() {
+            const [lang, setLang] = useState('th');
+            const [step, setStep] = useState('disclaimer'); // 'disclaimer' | 'assessment' | 'results'
+            const [answers, setAnswers] = useState({});
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+
+            const t = i18n[lang];
+            const questions = t.questions;
+
+            const handleSelectScore = (qId, val) => {
+                setAnswers(prev => ({ ...prev, [qId]: val }));
+            };
+
+            const computeResults = () => {
+                let total = 0;
+                const dims = { strategic: 0, risk: 0, synergy: 0, relational: 0 };
+                const dimCounts = { strategic: 0, risk: 0, synergy: 0, relational: 0 };
+
+                questions.forEach(q => {
+                    const val = answers[q.id] || 0;
+                    total += val;
+                    if (dims[q.dim] !== undefined) {
+                        dims[q.dim] += val;
+                        dimCounts[q.dim] += 1;
+                    }
+                });
+
+                const dimScores = {
+                    strategic: dimCounts.strategic ? (dims.strategic / dimCounts.strategic).toFixed(1) : 0,
+                    risk: dimCounts.risk ? (dims.risk / dimCounts.risk).toFixed(1) : 0,
+                    synergy: dimCounts.synergy ? (dims.synergy / dimCounts.synergy).toFixed(1) : 0,
+                    relational: dimCounts.relational ? (dims.relational / dimCounts.relational).toFixed(1) : 0,
+                };
+
+                let archetypeKey = 'emerger';
+                if (total >= 35) {
+                    archetypeKey = 'catalyst';
+                } else if (total >= 28) {
+                    if (dims.relational >= dims.risk) {
+                        archetypeKey = 'architect';
+                    } else {
+                        archetypeKey = 'safeguard';
+                    }
+                } else {
+                    archetypeKey = 'emerger';
+                }
+
+                return { total, dimScores, archetypeKey, profile: t.archetypes[archetypeKey] };
+            };
+
+            const results = computeResults();
+
+            // Initialize Radar Chart when viewing results
+            useEffect(() => {
+                if (step === 'results' && chartRef.current) {
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                        chartInstance.current = null;
+                    }
+                    const ctx = chartRef.current.getContext('2d');
+                    if (ctx) {
+                        chartInstance.current = new Chart(ctx, {
+                            type: 'radar',
+                            data: {
+                                labels: [
+                                    t.dimStrategic,
+                                    t.dimRisk,
+                                    t.dimSynergy,
+                                    t.dimRelational
+                                ],
+                                datasets: [{
+                                    label: 'Competency Score',
+                                    data: [
+                                        results.dimScores.strategic,
+                                        results.dimScores.risk,
+                                        results.dimScores.synergy,
+                                        results.dimScores.relational
+                                    ],
+                                    backgroundColor: 'rgba(56, 189, 248, 0.25)',
+                                    borderColor: '#38bdf8',
+                                    borderWidth: 2,
+                                    pointBackgroundColor: '#34d399',
+                                    pointBorderColor: '#fff',
+                                    pointHoverBackgroundColor: '#fff',
+                                    pointHoverBorderColor: '#38bdf8'
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    r: {
+                                        angleLines: { color: 'rgba(255, 255, 255, 0.15)' },
+                                        grid: { color: 'rgba(255, 255, 255, 0.15)' },
+                                        pointLabels: {
+                                            color: '#cbd5e1',
+                                            font: { size: 10, family: 'Sarabun, sans-serif', weight: 'bold' }
+                                        },
+                                        ticks: {
+                                            backdropColor: 'transparent',
+                                            color: '#94a3b8',
+                                            stepSize: 1,
+                                            min: 0,
+                                            max: 4
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: { display: false }
+                                }
+                            }
+                        });
+                    }
+                }
+                return () => {
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                        chartInstance.current = null;
+                    }
+                };
+            }, [step, lang]);
+
+            return (
+                <div className="min-h-screen flex flex-col justify-between p-3 sm:p-5 md:p-8 max-w-5xl mx-auto">
+                    {/* Header bar */}
+                    <header className="glass-panel rounded-2xl p-4 md:p-6 mb-6 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700/50">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-indigo-500 via-sky-500 to-emerald-400 flex items-center justify-center text-white shadow-lg text-lg sm:text-xl font-bold shrink-0">
+                                <i className="fa-solid fa-users-gear"></i>
+                            </div>
+                            <div>
+                                <h1 className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight gradient-text">
+                                    {t.appTitle}
+                                </h1>
+                                <p className="text-xs text-slate-400 font-medium">
+                                    {t.appSubtitle}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                            <button 
+                                onClick={() => setLang(lang === 'en' ? 'th' : 'en')}
+                                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-600/60 transition flex items-center gap-1.5 shadow-sm"
+                            >
+                                <i className="fa-solid fa-language text-sky-400 text-sm"></i>
+                                {t.langToggle}
+                            </button>
+                        </div>
+                    </header>
+
+                    {}
+                    {step === 'disclaimer' && (
+                        <main className="flex-grow flex flex-col justify-center my-auto">
+                            <div className="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-700/60 max-w-2xl mx-auto space-y-6 text-center">
+                                
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-extrabold bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-rose-500/20 text-amber-300 border border-amber-500/40 shadow-lg mb-1">
+                                    <i className="fa-solid fa-fire-flame-curved text-amber-400 text-sm"></i>
+                                    <span>{t.sponsorText}</span>
+                                </div>
+
+                                <div className="block">
+                                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                                        <i className="fa-solid fa-shield-halved"></i>
+                                        {t.pdpaBadge}
+                                    </div>
+                                </div>
+
+                                <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+                                    {t.pdpaTitle}
+                                </h2>
+
+                                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                    {t.pdpaDesc}
+                                </p>
+
+                                <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 text-left space-y-3 text-xs sm:text-sm text-slate-300">
+                                    <div className="flex items-start gap-3">
+                                        <i className="fa-solid fa-circle-check text-emerald-400 mt-1 shrink-0"></i>
+                                        <span>{t.pdpaBullet1}</span>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <i className="fa-solid fa-microchip text-sky-400 mt-1 shrink-0"></i>
+                                        <span>{t.pdpaBullet2}</span>
+                                    </div>
+                                    <div className="flex items-start gap-3">
+                                        <i className="fa-solid fa-trash-can text-amber-400 mt-1 shrink-0"></i>
+                                        <span>{t.pdpaBullet3}</span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => setStep('assessment')}
+                                    className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-600 to-emerald-500 hover:opacity-95 text-white font-bold text-sm transition shadow-xl shadow-sky-500/20 flex items-center justify-center gap-3 mx-auto"
+                                >
+                                    <span>{t.startAssessmentBtn}</span>
+                                    <i className="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </main>
+                    )}
+
+                    {}
+                    {step === 'assessment' && (
+                        <main className="flex-grow flex flex-col justify-center">
+                            <div className="glass-panel rounded-3xl p-4 sm:p-7 md:p-8 shadow-2xl border border-slate-700/60 transition-all duration-300 space-y-6">
+                                
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                                    <div>
+                                        <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                                            <i className="fa-solid fa-list-check text-sky-400"></i>
+                                            {lang === 'th' ? "แบบประเมินตนเอง (ทั้ง 10 ข้อในหน้าเดียว)" : "Self-Assessment Diagnostic (All 10 Questions)"}
+                                        </h2>
+                                        <p className="text-xs text-slate-400 mt-0.5">
+                                            {lang === 'th' ? "เลือกคะแนน 1 - 4 สำหรับแต่ละข้อความตามความเป็นจริง" : "Select rating 1 - 4 for each statement based on your actual practice"}
+                                        </p>
+                                    </div>
+
+                                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-bold text-slate-300 shrink-0">
+                                        <span className="text-slate-400">{lang === 'th' ? "ตอบแล้ว:" : "Answered:"}</span>
+                                        <span className={Object.keys(answers).length === questions.length ? "text-emerald-400 text-sm font-black" : "text-sky-400 text-sm font-black"}>
+                                            {Object.keys(answers).length} / {questions.length}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-900/90 rounded-2xl p-3 border border-slate-800 text-xs text-slate-300 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 font-extrabold flex items-center justify-center text-xs border border-emerald-500/40 shrink-0">4</span>
+                                        <span className="text-[11px] font-medium leading-tight">{t.scaleLabels[4]}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 font-extrabold flex items-center justify-center text-xs border border-sky-500/40 shrink-0">3</span>
+                                        <span className="text-[11px] font-medium leading-tight">{t.scaleLabels[3]}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 font-extrabold flex items-center justify-center text-xs border border-amber-500/40 shrink-0">2</span>
+                                        <span className="text-[11px] font-medium leading-tight">{t.scaleLabels[2]}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 font-extrabold flex items-center justify-center text-xs border border-rose-500/40 shrink-0">1</span>
+                                        <span className="text-[11px] font-medium leading-tight">{t.scaleLabels[1]}</span>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3.5 max-h-[58vh] overflow-y-auto pr-1">
+                                    {questions.map((q, idx) => {
+                                        const selectedVal = answers[q.id];
+                                        return (
+                                            <div 
+                                                key={q.id} 
+                                                className={`p-4 rounded-2xl border transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-3 ${selectedVal ? 'bg-slate-900/90 border-slate-700/90' : 'bg-slate-900/50 border-slate-800'}`}
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <span className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${selectedVal ? 'bg-sky-500/20 text-sky-400 border border-sky-500/40' : 'bg-slate-800 text-slate-500'}`}>
+                                                        {idx + 1}
+                                                    </span>
+                                                    <p className="text-sm sm:text-base font-bold text-slate-100 leading-relaxed">
+                                                        {lang === 'th' ? q.th : q.en}
+                                                    </p>
+                                                </div>
+
+                                                <div className="flex items-center justify-end gap-2 shrink-0 self-end md:self-center pt-2 md:pt-0 border-t md:border-t-0 border-slate-800/80 w-full md:w-auto">
+                                                    {[4, 3, 2, 1].map((val) => {
+                                                        const isSelected = selectedVal === val;
+                                                        let styleClasses = "bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-white";
+                                                        
+                                                        if (isSelected) {
+                                                            if (val === 4) styleClasses = "bg-emerald-600 border-emerald-400 text-white shadow-md shadow-emerald-600/30 font-black scale-105";
+                                                            if (val === 3) styleClasses = "bg-sky-600 border-sky-400 text-white shadow-md shadow-sky-600/30 font-black scale-105";
+                                                            if (val === 2) styleClasses = "bg-amber-600 border-amber-400 text-white shadow-md shadow-amber-600/30 font-black scale-105";
+                                                            if (val === 1) styleClasses = "bg-rose-600 border-rose-400 text-white shadow-md shadow-rose-600/30 font-black scale-105";
+                                                        }
+
+                                                        return (
+                                                            <button
+                                                                key={val}
+                                                                onClick={() => handleSelectScore(q.id, val)}
+                                                                className={`w-10 h-9 sm:w-11 sm:h-10 rounded-xl border text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center ${styleClasses}`}
+                                                                title={`Score ${val}`}
+                                                            >
+                                                                {val}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-800">
+                                    <button
+                                        onClick={() => setStep('disclaimer')}
+                                        className="text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-2"
+                                    >
+                                        <i className="fa-solid fa-arrow-left"></i>
+                                        {t.prevBtn}
+                                    </button>
+
+                                    <button
+                                        onClick={() => setStep('results')}
+                                        disabled={Object.keys(answers).length < questions.length}
+                                        className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 hover:opacity-95 disabled:opacity-40 disabled:hover:opacity-40 text-white font-bold text-xs sm:text-sm transition shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2.5"
+                                    >
+                                        <i className="fa-solid fa-chart-line text-sm"></i>
+                                        <span>{t.submitBtn}</span>
+                                        {Object.keys(answers).length < questions.length && (
+                                            <span className="text-[10px] bg-black/30 px-2 py-0.5 rounded-full font-medium">
+                                                ({questions.length - Object.keys(answers).length} {lang === 'th' ? "ข้อที่เหลือ" : "left"})
+                                            </span>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </main>
+                    )}
+
+                    {}
+                    {step === 'results' && (
+                        <main className="flex-grow flex flex-col justify-center space-y-5">
+                            <div className="glass-panel rounded-3xl p-5 sm:p-6 border border-slate-700/60 shadow-xl">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div>
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30 mb-2">
+                                            <i className="fa-solid fa-award"></i>
+                                            <span>{t.resultsTitle}</span>
+                                        </div>
+                                        <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white">
+                                            {lang === 'th' ? results.profile.thTitle : results.profile.title}
+                                        </h2>
+                                        <p className="text-xs sm:text-sm font-semibold text-sky-400 mt-0.5">
+                                            {results.profile.subtitle}
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-slate-900/90 rounded-2xl p-4 border border-slate-700/80 flex items-center gap-4 shadow-xl shrink-0 w-full sm:w-auto justify-between sm:justify-start">
+                                        <div>
+                                            <div className="text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
+                                                {results.total} <span className="text-sm text-slate-500 font-medium">/ 40</span>
+                                            </div>
+                                            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                                                {t.scoreLabel}
+                                            </div>
+                                        </div>
+                                        <div className="h-10 w-px bg-slate-800"></div>
+                                        <div>
+                                            <div className="text-xs font-extrabold text-emerald-400 uppercase">
+                                                {results.total >= 35 ? "Tier 1: Enterprise Leader" : results.total >= 28 ? "Tier 2: Functional Partner" : "Tier 3: Developing Synergy"}
+                                            </div>
+                                            <div className="text-[10px] text-slate-400">
+                                                {t.benchmarkLabel}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-gradient-to-r from-amber-500/15 via-sky-500/15 to-emerald-500/15 border border-amber-500/40 rounded-2xl p-3.5 flex items-center gap-3 shadow-lg">
+                                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center shrink-0 text-base font-bold">
+                                    <i className="fa-solid fa-camera"></i>
+                                </div>
+                                <div className="text-xs font-semibold text-amber-200 leading-relaxed">
+                                    {t.screenshotNotice}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                                <div className="lg:col-span-5 glass-panel rounded-3xl p-5 border border-slate-700/60 shadow-xl flex flex-col justify-between space-y-4">
+                                    <div>
+                                        <h3 className="text-sm font-extrabold text-white flex items-center gap-2 mb-3">
+                                            <i className="fa-solid fa-chart-pie text-sky-400"></i>
+                                            <span>{lang === 'th' ? "กราฟวิเคราะห์สมรรถนะ 4 มิติ" : "4-Dimension Competency Radar"}</span>
+                                        </h3>
+                                        <div className="relative w-full h-64 sm:h-72">
+                                            <canvas ref={chartRef}></canvas>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 text-xs">
+                                        <div className="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
+                                            <div className="text-slate-400 text-[10px] truncate">{t.dimStrategic}</div>
+                                            <div className="text-sky-400 font-extrabold text-sm mt-0.5">{results.dimScores.strategic} <span className="text-[10px] text-slate-500">/ 4.0</span></div>
+                                        </div>
+                                        <div className="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
+                                            <div className="text-slate-400 text-[10px] truncate">{t.dimRisk}</div>
+                                            <div className="text-sky-400 font-extrabold text-sm mt-0.5">{results.dimScores.risk} <span className="text-[10px] text-slate-500">/ 4.0</span></div>
+                                        </div>
+                                        <div className="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
+                                            <div className="text-slate-400 text-[10px] truncate">{t.dimSynergy}</div>
+                                            <div className="text-sky-400 font-extrabold text-sm mt-0.5">{results.dimScores.synergy} <span className="text-[10px] text-slate-500">/ 4.0</span></div>
+                                        </div>
+                                        <div className="bg-slate-900/80 rounded-xl p-2.5 border border-slate-800">
+                                            <div className="text-slate-400 text-[10px] truncate">{t.dimRelational}</div>
+                                            <div className="text-sky-400 font-extrabold text-sm mt-0.5">{results.dimScores.relational} <span className="text-[10px] text-slate-500">/ 4.0</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="lg:col-span-7 space-y-4">
+                                    <div className="glass-panel rounded-3xl p-5 border border-sky-500/30 bg-gradient-to-br from-sky-950/40 via-slate-900/80 to-slate-900/90 shadow-xl space-y-2">
+                                        <div className="flex items-center gap-2 text-xs font-bold text-sky-400">
+                                            <i className="fa-solid fa-lightbulb"></i>
+                                            <span>{lang === 'th' ? "สรุปภาพรวมในภาษาเข้าใจง่าย" : "Summary in Simple Language"}</span>
+                                        </div>
+                                        <p className="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed">
+                                            {results.profile.simpleSummary}
+                                        </p>
+                                        <p className="text-xs text-slate-400 leading-relaxed pt-1 border-t border-slate-800/80">
+                                            {results.profile.desc}
+                                        </p>
+                                    </div>
+
+                                    <div className="glass-panel rounded-3xl p-5 border border-slate-700/60 shadow-xl space-y-3">
+                                        <h3 className="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                                            <i className="fa-solid fa-circle-check"></i>
+                                            <span>{lang === 'th' ? "จุดแข็งโดดเด่นประจำตัวคุณ" : "Key Collaborator Strengths"}</span>
+                                        </h3>
+                                        <ul className="space-y-2 text-xs sm:text-sm text-slate-300">
+                                            {results.profile.strengths.map((str, idx) => (
+                                                <li key={idx} className="flex items-start gap-2.5">
+                                                    <span className="w-5 h-5 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                                                        ✓
+                                                    </span>
+                                                    <span>{str}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <div className="glass-panel rounded-3xl p-5 border border-slate-700/60 shadow-xl space-y-3">
+                                        <h3 className="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                                            <i className="fa-solid fa-compass"></i>
+                                            <span>{lang === 'th' ? "ข้อเสนอแนะหลักเพื่อยกระดับศักยภาพ (Core Recommendations)" : "Core Recommendations to Elevate Collaboration"}</span>
+                                        </h3>
+                                        <ul className="space-y-2 text-xs sm:text-sm text-slate-300">
+                                            {results.profile.coreRecommendations.map((rec, idx) => (
+                                                <li key={idx} className="flex items-start gap-2.5">
+                                                    <span className="w-5 h-5 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                                                        {idx + 1}
+                                                    </span>
+                                                    <span>{rec}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <div className="glass-panel rounded-3xl p-5 border border-slate-700/60 shadow-xl space-y-3">
+                                        <h3 className="text-xs font-extrabold text-sky-400 uppercase tracking-wider flex items-center gap-2">
+                                            <i className="fa-solid fa-graduation-cap"></i>
+                                            <span>{lang === 'th' ? "หลักสูตรอบรมแนะนำเฉพาะบุคคล (Tailored Course Modules)" : "Tailored Executive Course Recommendations"}</span>
+                                        </h3>
+                                        <div className="grid grid-cols-1 gap-2.5">
+                                            {results.profile.courses.map((course, idx) => (
+                                                <div key={idx} className="bg-slate-900/90 rounded-2xl p-3 border border-slate-800 hover:border-sky-500/40 transition">
+                                                    <div className="text-xs sm:text-sm font-bold text-slate-100 flex items-center justify-between gap-2">
+                                                        <span>{course.name}</span>
+                                                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-300 border border-sky-500/20 shrink-0 font-mono">Module {idx+1}</span>
+                                                    </div>
+                                                    <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1.5">
+                                                        <i className="fa-solid fa-bullseye text-emerald-400 text-[10px]"></i>
+                                                        <span><strong className="text-slate-300">{lang === 'th' ? "เน้นการพัฒนา:" : "Core Focus:"}</strong> {course.focus}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-800">
+                                <button
+                                    onClick={() => {
+                                        setStep('assessment');
+                                        setAnswers({});
+                                    }}
+                                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs sm:text-sm transition border border-slate-700 flex items-center justify-center gap-2 shadow-lg"
+                                >
+                                    <i className="fa-solid fa-rotate-right"></i>
+                                    {t.retakeBtn}
+                                </button>
+                            </div>
+                        </main>
+                    )}
+
+                    <footer className="mt-8 pt-4 border-t border-slate-800/80 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+                        <span>{t.sponsorText}</span>
+                        <span>© {new Date().getFullYear()} Executive Collaboration Diagnostic Platform</span>
+                    </footer>
+                </div>
+            );
+        }
+
+        // Render application securely
+        const rootElement = document.getElementById('root');
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<App />);
+    </script>
+</body>
+</html>
