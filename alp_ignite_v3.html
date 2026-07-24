@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Leadership Profiler | แบบประเมินภาวะผู้นำแบบปรับตัว</title>
+    <!-- Google Font: Sarabun (Professional Corporate Thai & English Font) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN for Radar Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #2563eb;
+            --accent-soft: #eff6ff;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #059669;
+            --font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08);
+            padding: 18px;
+            position: relative;
+            border: 1px solid var(--border);
+            transition: max-width 0.3s ease, padding 0.3s ease;
+        }
+
+        @media (min-width: 640px) {
+            body {
+                padding: 24px 16px;
+            }
+            .container {
+                max-width: 580px;
+                padding: 24px;
+                border-radius: 22px;
+            }
+            .title {
+                font-size: 1.15rem !important;
+            }
+            .intro-title {
+                font-size: 1.25rem !important;
+            }
+            .intro-desc {
+                font-size: 0.85rem !important;
+            }
+            .question-title {
+                font-size: 0.98rem !important;
+            }
+            .option-btn {
+                font-size: 0.88rem !important;
+                padding: 13px 16px !important;
+            }
+            .chart-container {
+                height: 280px !important;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 620px;
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .title-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.2px;
+        }
+
+        .subtitle-mini {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .lang-btn {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.78rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+            font-family: var(--font-family);
+        }
+
+        .lang-btn:hover {
+            background: var(--accent);
+        }
+
+        #start-screen {
+            display: block;
+        }
+
+        .intro-box {
+            text-align: center;
+            padding: 10px 0 16px 0;
+        }
+
+        .intro-icon {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .intro-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+            line-height: 1.35;
+        }
+
+        .intro-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .pdpa-card {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: left;
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .pdpa-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .pdpa-badge {
+            background: #dbeafe;
+            color: var(--accent);
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .pdpa-body {
+            font-size: 0.75rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .pdpa-list {
+            margin-top: 6px;
+            padding-left: 18px;
+        }
+
+        .pdpa-list li {
+            margin-bottom: 4px;
+        }
+
+        .start-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-family);
+        }
+
+        .start-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        #quiz-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            margin-bottom: 12px;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 11px 13px;
+            border-radius: 10px;
+            margin-bottom: 9px;
+            font-size: 0.82rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.45;
+            font-family: var(--font-family);
+        }
+
+        .option-btn:hover, .option-btn:active {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            transform: translateY(-1px);
+        }
+
+        #results-screen {
+            display: none;
+            background: #ffffff;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .results-header h2 {
+            font-size: 1.15rem;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            text-transform: uppercase;
+        }
+
+        .results-header p {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 240px;
+            margin: 0 auto 10px auto;
+        }
+
+        .section-box {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .section-box h3 {
+            font-size: 0.78rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .section-box p, .section-box ul {
+            font-size: 0.76rem;
+            color: var(--text-main);
+            line-height: 1.45;
+        }
+
+        .section-box ul {
+            padding-left: 16px;
+            margin-top: 3px;
+        }
+
+        .section-box li {
+            margin-bottom: 3px;
+        }
+
+        .screenshot-footer {
+            text-align: center;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+            font-style: italic;
+            border-top: 1px dashed var(--border);
+            padding-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .restart-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+            font-family: var(--font-family);
+        }
+
+        strong {
+            color: var(--accent);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title-container">
+            <div class="title" id="app-title">Adaptive Leadership Profiler</div>
+            <div class="subtitle-mini" id="app-subtitle">Master's Level Executive Assessment</div>
+        </div>
+        <button class="lang-btn" id="lang-toggle" onclick="toggleLanguage()">EN</button>
+    </div>
+
+    <!-- Start / Landing View -->
+    <div id="start-screen">
+        <div class="intro-box">
+            <span class="intro-icon">👔</span>
+            <div class="intro-title" id="start-heading">ประเมินศักยภาพภาวะผู้นำเชิงกลยุทธ์</div>
+            <div class="intro-desc" id="start-desc">
+                เครื่องมือวิเคราะห์ตนเองตามแนวคิด Situational Leadership & Will-Skill Matrix ระดับผู้บริหาร เพื่อค้นหาแนวทางพัฒนาทีมงานและการบริหารองค์กร
+            </div>
+        </div>
+
+        <div class="pdpa-card">
+            <div class="pdpa-header">
+                <span>🔒</span>
+                <span id="pdpa-title">นโยบายความเป็นส่วนตัว (PDPA Notice)</span>
+                <span class="pdpa-badge">Thai Law</span>
+            </div>
+            <div class="pdpa-body">
+                <span id="pdpa-desc">สอดคล้องตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA):</span>
+                <ul class="pdpa-list" id="pdpa-points">
+                    <li><strong>ประมวลผลบนเครื่องของคุณเท่านั้น (Client-Side Only)</strong> ไม่มีการบันทึกหรือส่งข้อมูลไปยังเซิร์ฟเวอร์ใดๆ</li>
+                    <li><strong>ลบข้อมูลทันทีเมื่อปิดหน้าเว็บ:</strong> ข้อมูลคำตอบและผลประเมินจะถูกทำลายทันทีที่ปิดหรือรีเฟรชเบราว์เซอร์</li>
+                    <li><strong>รองรับการจับภาพหน้าจอ (Snapshot Friendly):</strong> เมื่อประเมินเสร็จ สามารถบันทึกภาพหน้าจอ (Screenshot) เพื่อใช้อ้างอิงส่วนบุคคลได้ทันที</li>
+                </ul>
+            </div>
+        </div>
+
+        <button class="start-btn" id="btn-start" onclick="startQuiz()">
+            <span id="btn-start-text">เริ่มทำแบบประเมิน</span> ➔
+        </button>
+    </div>
+
+    <!-- Assessment View -->
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+        <div class="question-card">
+            <span class="question-number" id="q-number">Question 1/4</span>
+            <div class="question-title" id="question-text">Loading assessment...</div>
+            <div id="options-container"></div>
+        </div>
+    </div>
+
+    <!-- Single-Shot Result View -->
+    <div id="results-screen">
+        <div class="results-header">
+            <h2 id="res-title">สรุปผลการวิเคราะห์ภาวะผู้นำ</h2>
+            <p id="res-subtitle">Situational Leadership Archetype Distribution (Will vs Skill Matrix)</p>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="radarChart"></canvas>
+        </div>
+
+        <div class="section-box">
+            <h3 id="head-feedback">🎯 การวินิจฉัยเชิงกลยุทธ์ (Strategic Diagnosis)</h3>
+            <p id="text-feedback">กำลังวิเคราะห์ผล...</p>
+        </div>
+
+        <div class="section-box">
+            <h3 id="head-dev">💡 แนวทางการพัฒนาศักยภาพ (Actionable Adjustments)</h3>
+            <p id="text-dev">กำลังวิเคราะห์ผล...</p>
+        </div>
+
+        <div class="section-box">
+            <h3 id="head-courses">🎓 หลักสูตรแนะนำสำหรับผู้บริหาร (Executive Modules)</h3>
+            <ul id="list-courses"></ul>
+        </div>
+
+        <div class="screenshot-footer">
+            <span id="screenshot-note">📸 รูปแบบ Single-Screen พร้อมสำหรับการบันทึกภาพหน้าจอ</span>
+            <button class="restart-btn" id="btn-restart" onclick="restartQuiz()">ทำแบบประเมินใหม่</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentLang = 'TH';
+    let currentQuestion = 0;
+    let chartInstance = null;
+    
+    const scores = {
+        telling: 0,
+        selling: 0,
+        participating: 0,
+        delegating: 0
+    };
+
+    const i18n = {
+        TH: {
+            appTitle: "Adaptive Leadership Profiler",
+            appSubtitle: "แบบประเมินภาวะผู้นำระดับผู้บริหาร",
+            startHeading: "ประเมินศักยภาพภาวะผู้นำเชิงกลยุทธ์",
+            startDesc: "เครื่องมือวิเคราะห์ตนเองตามแนวคิด Situational Leadership & Will-Skill Matrix ระดับผู้บริหาร เพื่อค้นหาแนวทางพัฒนาทีมงานและการบริหารองค์กร",
+            pdpaTitle: "นโยบายความเป็นส่วนตัว (PDPA Notice)",
+            pdpaDesc: "สอดคล้องตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA):",
+            pdpaPoints: [
+                "<strong>ประมวลผลบนเครื่องของคุณเท่านั้น (Client-Side Only)</strong> ไม่มีการบันทึกหรือส่งข้อมูลไปยังเซิร์ฟเวอร์ใดๆ",
+                "<strong>ลบข้อมูลทันทีเมื่อปิดหน้าเว็บ:</strong> ข้อมูลคำตอบและผลประเมินจะถูกทำลายทันทีที่ปิดหรือรีเฟรชเบราว์เซอร์",
+                "<strong>รองรับการจับภาพหน้าจอ (Snapshot Friendly):</strong> เมื่อประเมินเสร็จ สามารถบันทึกภาพหน้าจอ (Screenshot) เพื่อใช้อ้างอิงส่วนบุคคลได้ทันที"
+            ],
+            btnStartText: "เริ่มทำแบบประเมิน",
+            resTitle: "สรุปผลการวิเคราะห์ภาวะผู้นำ",
+            resSubtitle: "สัดส่วนรูปแบบภาวะผู้นำตามสถานการณ์ (Will vs Skill Matrix)",
+            headFeedback: "🎯 การวินิจฉัยเชิงกลยุทธ์ (Strategic Diagnosis)",
+            headDev: "💡 แนวทางการพัฒนาศักยภาพ (Actionable Adjustments)",
+            headCourses: "🎓 หลักสูตรแนะนำสำหรับผู้บริหาร (Executive Modules)",
+            screenshotNote: "📸 รูปแบบ Single-Screen พร้อมสำหรับการบันทึกภาพหน้าจอ",
+            questions: [
+                {
+                    q: "เมื่อต้องดูแลผู้ใต้บังคับบัญชาที่มีทักษะและความเชี่ยวชาญสูง แต่เริ่มมีแรงจูงใจและความกระตือรือร้นในการทำงานลดลง ท่านจะปรับรูปแบบการบริหารอย่างไร?",
+                    options: [
+                        { text: "กำหนดขอบเขตและคำสั่งที่ชัดเจน พร้อมติดตามผลอย่างใกล้ชิด", style: "telling" },
+                        { text: "อธิบายเหตุผลและความสำคัญของเป้าหมายเพื่อฟื้นฟูแรงจูงใจ", style: "selling" },
+                        { text: "เปิดโอกาสให้มีส่วนร่วมในการตัดสินใจ และเน้นการรับฟังเชิงสนับสนุน", style: "participating" },
+                        { text: "ให้อิสระในการทำงานเต็มที่และคาดหวังให้แก้ไขปัญหาได้ด้วยตนเอง", style: "delegating" }
+                    ]
+                },
+                {
+                    q: "พนักงานใหม่ในทีมมีความมุ่งมั่นและแรงจูงใจเต็มเปี่ยม แต่ยังขาดทักษะและความเข้าใจในกระบวนการทำงานหลัก แนวทางหลักของท่านคือ:",
+                    options: [
+                        { text: "ให้คำแนะนำขั้นตอนอย่างแม่นยำ กำหนดแนวทางปฏิบัติอย่างเป็นระบบ", style: "telling" },
+                        { text: "ชี้นำโครงสร้างงานพร้อมทั้งให้กำลังใจ และอธิบายวัตถุประสงค์อย่างใกล้ชิด", style: "selling" },
+                        { text: "เน้นการพูดคุยแลกเปลี่ยน เพื่อให้พนักงานร่วมวางแผนการพัฒนาตนเอง", style: "participating" },
+                        { text: "มอบหมายความรับผิดชอบให้ลองทำจริงทันทีเพื่อเร่งการเรียนรู้", style: "delegating" }
+                    ]
+                },
+                {
+                    q: "ในสถานการณ์วิกฤตที่ต้องการการตัดสินใจอย่างรวดเร็ว โดยที่ทีมงานส่วนใหญ่ยังขาดประสบการณ์ในภารกิจลักษณะนี้ บทบาทของท่านคือ:",
+                    options: [
+                        { text: "ตัดสินใจเด็ดขาด สั่งการเชิงรุก และกำกับการทำงานทุกขั้นตอน", style: "telling" },
+                        { text: "กำหนดทิศทางพร้อมโน้มน้าวให้ทีมเข้าใจเหตุผลและความจำเป็น", style: "selling" },
+                        { text: "จัดประชุมระดมความคิดเพื่อหาข้อสรุปและแนวทางแก้ปัญหาร่วมกัน", style: "participating" },
+                        { text: "กระจายอำนาจการตัดสินใจให้หัวหน้าทีมย่อยรับผิดชอบโดยตรง", style: "delegating" }
+                    ]
+                },
+                {
+                    q: "การบริหารผู้เชี่ยวชาญระดับสูงในองค์กรที่มีทั้งความเชี่ยวชาญโดดเด่นและแรงจูงใจสูงในการสร้างผลงาน ท่านเลือกที่จะ:",
+                    options: [
+                        { text: "กำหนดกรอบการทำงานและรอบการรายงานผลอย่างเป็นระบบ", style: "telling" },
+                        { text: "จัดหารือเพื่อปรับทิศทางเชิงกลยุทธ์และโค้ชเป้าหมายระยะยาว", style: "selling" },
+                        { text: "ทำหน้าที่เป็นที่ปรึกษา ให้คำแนะนำเฉพาะเมื่อได้รับการร้องขอ", style: "participating" },
+                        { text: "มอบหมายอำนาจเบ็ดเสร็จและเป้าหมายเชิงกลยุทธ์ให้บริหารจัดการเอง", style: "delegating" }
+                    ]
+                }
+            ],
+            archetypeLabels: ["สั่งการ (Telling)", "โน้มน้าว (Selling)", "มีส่วนร่วม (Participating)", "มอบหมาย (Delegating)"],
+            feedbackText: {
+                telling: "รูปแบบหลักของท่านคือ **การสั่งการ (Telling/Directing)** เหมาะสำหรับการบริหารวิกฤตหรือทีมที่ขาดทักษะ (Low Skill / Low Will) แต่การใช้อย่างต่อเนื่องอาจทำให้เกิดการบริหารแบบล้วงลูก (Micromanagement) และลดทอนนวัตกรรมในองค์กร",
+                selling: "รูปแบบหลักของท่านคือ **การโน้มน้าว (Selling/Coaching)** มีประสิทธิภาพสูงในการสร้างกรอบความคิดและพัฒนาทีมที่มีความตั้งใจแต่ยังขาดทักษะ (Low Skill / High Will) อย่างไรก็ตาม ควรระวังภาวะบริหารจัดการล้าจากการอธิบายเหตุผลมากเกินไป",
+                participating: "รูปแบบหลักของท่านคือ **การมีส่วนร่วม (Participating/Supporting)** โดดเด่นในการสร้างความร่วมมือกับบุคลากรที่มีความเชี่ยวชาญสูงแต่ขาดแรงจูงใจ (High Skill / Low Will) ควรระวังไม่ให้กระบวนการหาฉันทามติทำให้ความเร็วในการดำเนินงานลดลง",
+                delegating: "รูปแบบหลักของท่านคือ **การมอบหมาย (Delegating)** ท่านกระจายอำนาจได้อย่างมีประสิทธิภาพแก่ทีมที่มีทั้งทักษะและความมุ่งมั่นสูง (High Skill / High Will) แต่ต้องระวังไม่ให้ถูกมองว่าเป็นการละเลยการกำกับดูแลเชิงกลยุทธ์"
+            },
+            devText: {
+                telling: "ปรับเปลี่ยนจากการสั่งการเป็นการกำหนดบริบท (Context-Setting) และใช้วิจารณญาณวิเคราะห์ความพร้อมของทีมตาม Will/Skill Matrix ก่อนกำหนดมาตรการควบคุม",
+                selling: "กระชับกระบวนการสร้างความเข้าใจ มุ่งเน้นการกำหนดเป้าหมายหลัก แล้วเปิดโอกาสให้ทีมออกแบบวิธีการปฏิบัติงานด้วยตนเอง",
+                participating: "นำกรอบการตัดสินใจที่เด็ดขาดมาใช้ รักษาสมดุลระหว่างการรับฟังเชิงเห็นอกเห็นใจกับการเคารพกำหนดเวลาการทำงานอย่างเคร่งครัด",
+                delegating: "จัดให้มีจุดตรวจติดตามเชิงกลยุทธ์ (Strategic Check-ins) โดยไม่เข้าไปก้าวก่ายระดับปฏิบัติการ เพื่อคงความสอดคล้องในเป้าหมายระยะยาว"
+            },
+            coursesList: {
+                telling: [
+                    "หลักสูตรการบริหารเชิงกลยุทธ์ผ่านการสร้างสภาพแวดล้อมแห่งความไว้วางใจ (Strategic Alignment & Psychological Safety)",
+                    "หลักสูตรวินิจฉัยศักยภาพบุคลากรและการวางกรอบการทำงานแบบมอบหมาย (Talent Diagnostics & Context-Setting Leadership)",
+                    "หลักสูตรการก้าวข้ามการบริหารแบบรวบอำนาจสู่การสร้างทีมงานที่พึ่งพาตนเองได้ (Transitioning from Micromanagement to Empowerment)"
+                ],
+                selling: [
+                    "หลักสูตรการโค้ชระดับผู้บริหารและการสื่อสารเชิงอิทธิพลที่ไม่ซับซ้อน (Executive Coaching & Concise Strategic Communication)",
+                    "หลักสูตรการตั้งเป้าหมายเชิงผลลัพธ์เพื่อลดภาวะล้าจากการบริหาร (Outcome-Based Leadership & Executive Stamina)",
+                    "หลักสูตรการพัฒนาทักษะการโค้ชเชิงวิเคราะห์สำหรับผู้นำยุคใหม่ (Analytical Coaching & Performance Enablement)"
+                ],
+                participating: [
+                    "หลักสูตรการตัดสินใจเด็ดขาดในภาวะคลุมเครือสำหรับผู้บริหาร (Decisive Leadership & Executive Agility)",
+                    "หลักสูตรการรักษาสมดุลระหว่างการรับฟังกับการส่งมอบผลงาน (Balancing Empathy with High Accountability)",
+                    "หลักสูตรการบริหารจัดการเวลาและการเพิ่มความเร็วในการดำเนินงาน (Accelerating Executive Decision Velocity)"
+                ],
+                delegating: [
+                    "หลักสูตรการกำกับดูแลเชิงกลยุทธ์และการสร้างระบบจุดตรวจติดตาม (Strategic Governance & Non-Intrusive Monitoring)",
+                    "หลักสูตรการบริหารผลการดำเนินงานผ่าน OKRs และเป้าหมายระยะยาว (Strategic Performance Management & OKR Alignment)",
+                    "หลักสูตรการพัฒนาผู้สืบทอดตำแหน่งและการกระจายอำนาจอย่างมียุทธศาสตร์ (Strategic Delegation & Succession Architecture)"
+                ]
+            }
+        },
+        EN: {
+            appTitle: "Adaptive Leadership Profiler",
+            appSubtitle: "Master's Level Executive Assessment",
+            startHeading: "Strategic Leadership Profiling",
+            startDesc: "A self-diagnostic assessment grounded in Situational Leadership and the Will-Skill Matrix, designed for executives to refine team management and organizational strategy.",
+            pdpaTitle: "Privacy Notice (PDPA Compliance)",
+            pdpaDesc: "In full compliance with Thailand's Personal Data Protection Act (PDPA B.E. 2562):",
+            pdpaPoints: [
+                "<strong>Client-Side Execution Only:</strong> All computations are processed entirely within your browser. No data is stored or transmitted to external servers.",
+                "<strong>Zero Persistence:</strong> Your answers and analysis are instantly wiped as soon as you close or refresh the page.",
+                "<strong>Snapshot Friendly Layout:</strong> Formatted into a consolidated single screen for effortless mobile screenshots."
+            ],
+            btnStartText: "Start Assessment",
+            resTitle: "Leadership Profile Summary",
+            resSubtitle: "Situational Leadership Archetype Distribution (Will vs Skill Matrix)",
+            headFeedback: "🎯 Strategic Diagnosis",
+            headDev: "💡 Actionable Adjustments",
+            headCourses: "🎓 Executive Modules Recommended",
+            screenshotNote: "📸 Single-screen layout optimized for mobile capture",
+            questions: [
+                {
+                    q: "When managing a direct report with high technical skill but declining engagement, how do you adjust your management approach?",
+                    options: [
+                        { text: "Enforce explicit directives and closely monitor operational output.", style: "telling" },
+                        { text: "Explain decisions thoroughly to realign motivation with strategic goals.", style: "selling" },
+                        { text: "Involve them in decision-making and offer supportive coaching.", style: "participating" },
+                        { text: "Grant full operational autonomy and expect self-correction.", style: "delegating" }
+                    ]
+                },
+                {
+                    q: "A newly onboarded hire displays high enthusiasm but lacks core operational competence. What is your primary directive?",
+                    options: [
+                        { text: "Provide explicit step-by-step guidance and structured supervision.", style: "telling" },
+                        { text: "Offer clear direction while continuously reassuring and encouraging them.", style: "selling" },
+                        { text: "Facilitate open discussion to let them design their learning pathway.", style: "participating" },
+                        { text: "Delegate full responsibility immediately to accelerate adaptiveness.", style: "delegating" }
+                    ]
+                },
+                {
+                    q: "In high-stakes, time-critical strategic initiatives with inexperienced team members, your default posture is to:",
+                    options: [
+                        { text: "Unilaterally determine the execution strategy and demand strict compliance.", style: "telling" },
+                        { text: "Define the strategy and persuade the team on its core rationale.", style: "selling" },
+                        { text: "Co-create solution frameworks collaboratively with the team.", style: "participating" },
+                        { text: "Hand over project governance entirely to unit leads.", style: "delegating" }
+                    ]
+                },
+                {
+                    q: "When overseeing senior experts with established track records and high motivation, you prefer to:",
+                    options: [
+                        { text: "Set rigid operational boundaries and review routines.", style: "telling" },
+                        { text: "Maintain frequent alignment meetings to coach their strategy.", style: "selling" },
+                        { text: "Act as a sounding board while keeping decision-making shared.", style: "participating" },
+                        { text: "Establish broad goals and fully delegate operational authority.", style: "delegating" }
+                    ]
+                }
+            ],
+            archetypeLabels: ["Telling / Directing", "Selling / Coaching", "Participating / Supporting", "Delegating"],
+            feedbackText: {
+                telling: "Your primary style is **Telling/Directing**. Highly effective in crisis management or with novice teams (Low Skill / Low Will), but over-indexing here risks micromanagement and stifling organizational innovation.",
+                selling: "Your primary style is **Selling/Coaching**. Excellent for building commitment in enthusiastic yet inexperienced talent (Low Skill / High Will). Guard against executive fatigue from over-explaining decisions.",
+                participating: "Your primary style is **Participating/Supporting**. You excel at collaborating with highly skilled but disengaged personnel (High Skill / Low Will). Ensure consensus-seeking does not slow execution velocity.",
+                delegating: "Your primary style is **Delegating**. You effectively leverage fully competent, highly motivated talent (High Skill / High Will). Take care that delegation is not misconstrued as strategic detachment."
+            },
+            devText: {
+                telling: "Shift from directive controls to context-setting. Diagnose team readiness according to the Will/Skill matrix before dictating action plans.",
+                selling: "Streamline your alignment process. Establish core parameters, then empower team members to define tactical execution paths.",
+                participating: "Introduce decisive frameworks. Balance empathetic listening with firm operational deadlines to maintain execution momentum.",
+                delegating: "Implement strategic check-ins without reverting to operational oversight. Ensure alignment on long-term intent rather than execution details."
+            },
+            coursesList: {
+                telling: [
+                    "Executive Program on Context-Setting Leadership & Psychological Safety",
+                    "Talent Diagnostics & Context-Setting Frameworks for Senior Leaders",
+                    "Transitioning from Directive Control to Strategic Empowerment"
+                ],
+                selling: [
+                    "Executive Coaching & High-Impact Strategic Communication",
+                    "Outcome-Based Leadership & Preventing Executive Fatigue",
+                    "Analytical Coaching & Performance Enablement Frameworks"
+                ],
+                participating: [
+                    "Decisive Leadership & Strategic Execution Under Ambiguity",
+                    "Balancing Empathetic Leadership with High Performance Standards",
+                    "Accelerating Executive Decision Velocity & Organizational Agility"
+                ],
+                delegating: [
+                    "Strategic Governance & Non-Intrusive Oversight Frameworks",
+                    "Executive Alignment: Managing Through OKRs & Strategic Intent",
+                    "Strategic Delegation & Organizational Succession Architecture"
+                ]
+            }
+        }
+    };
+
+    function renderStartScreen() {
+        const data = i18n[currentLang];
+        document.getElementById('app-title').innerText = data.appTitle;
+        document.getElementById('app-subtitle').innerText = data.appSubtitle;
+        document.getElementById('start-heading').innerText = data.startHeading;
+        document.getElementById('start-desc').innerText = data.startDesc;
+        document.getElementById('pdpa-title').innerText = data.pdpaTitle;
+        document.getElementById('pdpa-desc').innerText = data.pdpaDesc;
+        document.getElementById('btn-start-text').innerText = data.btnStartText;
+
+        const pdpaUl = document.getElementById('pdpa-points');
+        pdpaUl.innerHTML = '';
+        data.pdpaPoints.forEach(pt => {
+            const li = document.createElement('li');
+            li.innerHTML = pt;
+            pdpaUl.appendChild(li);
+        });
+    }
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'TH' ? 'EN' : 'TH';
+        document.getElementById('lang-toggle').innerText = currentLang === 'TH' ? 'EN' : 'TH';
+        
+        if (document.getElementById('start-screen').style.display !== 'none') {
+            renderStartScreen();
+        } else if (document.getElementById('quiz-screen').style.display !== 'none') {
+            renderQuestion();
+        } else if (document.getElementById('results-screen').style.display !== 'none') {
+            showResults();
+        }
+    }
+
+    function startQuiz() {
+        scores.telling = 0;
+        scores.selling = 0;
+        scores.participating = 0;
+        scores.delegating = 0;
+        currentQuestion = 0;
+
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const data = i18n[currentLang];
+        const qData = data.questions[currentQuestion];
+        
+        document.getElementById('app-title').innerText = data.appTitle;
+        document.getElementById('app-subtitle').innerText = data.appSubtitle;
+        document.getElementById('progress').style.width = `${((currentQuestion) / data.questions.length) * 100}%`;
+        document.getElementById('q-number').innerText = `Question ${currentQuestion + 1}/${data.questions.length}`;
+        document.getElementById('question-text').innerText = qData.q;
+        
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        
+        qData.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.style);
+            container.appendChild(btn);
+        });
+    }
+
+    function selectOption(style) {
+        if (scores.hasOwnProperty(style)) {
+            scores[style]++;
+        }
+        currentQuestion++;
+        if (currentQuestion < i18n[currentLang].questions.length) {
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        const data = i18n[currentLang];
+        document.getElementById('app-title').innerText = data.appTitle;
+        document.getElementById('app-subtitle').innerText = data.appSubtitle;
+        document.getElementById('res-title').innerText = data.resTitle;
+        document.getElementById('res-subtitle').innerText = data.resSubtitle;
+        document.getElementById('head-feedback').innerText = data.headFeedback;
+        document.getElementById('head-dev').innerText = data.headDev;
+        document.getElementById('head-courses').innerText = data.headCourses;
+        document.getElementById('screenshot-note').innerText = data.screenshotNote;
+
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'block';
+
+        renderRadarChart();
+        generateFeedbackContent();
+    }
+
+    function renderRadarChart() {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        const langData = i18n[currentLang];
+        const dataValues = [scores.telling, scores.selling, scores.participating, scores.delegating];
+
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: langData.archetypeLabels,
+                datasets: [{
+                    label: 'Leadership Bias',
+                    data: dataValues,
+                    backgroundColor: 'rgba(37, 99, 235, 0.18)',
+                    borderColor: '#2563eb',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#0f172a',
+                    pointBorderColor: '#ffffff',
+                    pointHoverBackgroundColor: '#ffffff',
+                    pointHoverBorderColor: '#2563eb',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#cbd5e1' },
+                        grid: { color: '#e2e8f0' },
+                        pointLabels: {
+                            font: {
+                                size: 11,
+                                weight: '600',
+                                family: "'Sarabun', -apple-system, sans-serif"
+                            },
+                            color: '#0f172a'
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 4,
+                        ticks: { stepSize: 1, display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    function generateFeedbackContent() {
+        let maxKey = 'telling';
+        let maxVal = -1;
+        for (const [k, v] of Object.entries(scores)) {
+            if (v > maxVal) { 
+                maxVal = v; 
+                maxKey = k; 
+            }
+        }
+
+        const langData = i18n[currentLang];
+
+        document.getElementById('text-feedback').innerHTML = parseMarkdownBold(langData.feedbackText[maxKey]);
+        document.getElementById('text-dev').innerHTML = parseMarkdownBold(langData.devText[maxKey]);
+        
+        const listUl = document.getElementById('list-courses');
+        listUl.innerHTML = '';
+        const selectedCourses = langData.coursesList[maxKey] || [];
+        selectedCourses.forEach(course => {
+            const li = document.createElement('li');
+            li.innerText = course;
+            listUl.appendChild(li);
+        });
+    }
+
+    function parseMarkdownBold(str) {
+        if (!str) return '';
+        return str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    function restartQuiz() {
+        scores.telling = 0;
+        scores.selling = 0;
+        scores.participating = 0;
+        scores.delegating = 0;
+        currentQuestion = 0;
+
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'block';
+        renderStartScreen();
+    }
+
+    window.onload = function() {
+        renderStartScreen();
+    };
+</script>
+</body>
+</html>
