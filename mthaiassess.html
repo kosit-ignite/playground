@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Thai Leadership Assessment App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #f8fafc; /* Slate-50 */
+            color: #1e293b; /* Slate-800 */
+        }
+        
+        .text-gradient {
+            background: linear-gradient(to right, #d97706, #be185d); 
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Option Button Hover Effects */
+        .option-btn {
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover {
+            border-color: #f472b6; /* Pink-400 */
+            background-color: #fdf2f8; /* Pink-50 */
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 500px; 
+            margin: 0 auto; 
+            height: 350px; 
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden selection:bg-pink-500 selection:text-white min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="font-bold text-xl tracking-tight text-gray-900 flex items-center gap-2">
+                <span class="text-2xl">🇹🇭</span> Tua Mae <span class="text-pink-600 font-light">Assessment</span>
+            </div>
+            <div id="header-progress" class="hidden text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                Question <span id="header-q-num" class="text-pink-600">1</span> of 6
+            </div>
+        </div>
+        <!-- Progress Bar Line -->
+        <div id="progress-bar-container" class="w-full bg-gray-100 h-1 hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-yellow-400 to-pink-500 h-1 transition-all duration-300" style="width: 0%;"></div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        
+        <!-- VIEW 1: LANDING PAGE -->
+        <div id="landing-view" class="max-w-3xl w-full text-center space-y-8 slide-up bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-gray-100">
+            <div>
+                <h2 class="text-pink-600 font-bold tracking-[0.2em] uppercase mb-3 text-sm md:text-base">Discover Your Style</h2>
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight text-gray-900">
+                    The 6 Faces of <br><span class="text-gradient">Modern Thai Leadership</span>
+                </h1>
+                <p class="text-lg text-gray-500 font-light max-w-2xl mx-auto mt-6">
+                    Are you the Visionary Icon, the Direct Driver, or the Nurturing Supporter? 
+                    Take this 6-question situational assessment to identify your dominant leadership archetype based on the "Tua Mae" framework.
+                </p>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800 text-left flex items-start gap-3 max-w-xl mx-auto">
+                <div class="text-xl">💡</div>
+                <div>
+                    <strong>Instructions:</strong> Read the scenarios carefully. Choose the <strong>one</strong> option that best matches your <em>natural instinct</em>. Be honest—choose what you actually do, not what you think sounds best!
+                </div>
+            </div>
+
+            <button onclick="startAssessment()" class="inline-block bg-gray-900 hover:bg-gray-800 text-white font-semibold py-4 px-10 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                Start Assessment 🚀
+            </button>
+        </div>
+
+        <!-- VIEW 2: QUIZ PAGE -->
+        <div id="quiz-view" class="hidden max-w-4xl w-full">
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="p-8 md:p-12">
+                    <div class="mb-8">
+                        <h3 id="q-category" class="text-sm font-bold tracking-widest text-pink-500 uppercase mb-2">Category</h3>
+                        <h2 id="q-text" class="text-2xl md:text-3xl font-bold text-gray-900 leading-snug">
+                            Question text goes here?
+                        </h2>
+                    </div>
+                    
+                    <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Options generated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: RESULTS PAGE -->
+        <div id="results-view" class="hidden max-w-5xl w-full space-y-8">
+            <div class="text-center mb-8 fade-in">
+                <h2 class="text-gray-500 font-semibold tracking-widest uppercase mb-2">Your Leadership Profile</h2>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">You are the <br><span id="res-name" class="text-gradient">Archetype Name</span></h1>
+                <p id="res-thai" class="text-2xl text-pink-600 font-medium">ชื่อไทย</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Result Details -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 flex flex-col justify-center slide-up" style="animation-delay: 0.1s;">
+                    <div class="text-6xl mb-4" id="res-emoji">✨</div>
+                    <blockquote id="res-motto" class="text-xl md:text-2xl italic text-gray-600 mb-8 border-l-4 border-pink-500 pl-4 bg-gray-50 py-3 pr-3 rounded-r-lg">
+                        "Motto goes here"
+                    </blockquote>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-sm uppercase tracking-wider text-gray-400 font-bold mb-1">Superpower (จุดเด่น)</h4>
+                            <p id="res-strength" class="text-lg font-semibold text-gray-900">Strength description</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm uppercase tracking-wider text-gray-400 font-bold mb-1">Blind Spot (ข้อควรระวัง)</h4>
+                            <p id="res-weakness" class="text-lg font-semibold text-red-600">Weakness description</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Radar Chart -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 slide-up" style="animation-delay: 0.2s;">
+                    <h3 class="font-bold text-xl text-gray-900 text-center mb-2">Your Leadership Spectrum</h3>
+                    <p class="text-center text-sm text-gray-500 mb-6">Based on your specific answers across the 6 dimensions.</p>
+                    <div class="chart-container">
+                        <canvas id="userRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12 slide-up" style="animation-delay: 0.4s;">
+                <button onclick="resetAssessment()" class="text-gray-500 font-semibold hover:text-gray-900 transition-colors border border-gray-300 hover:border-gray-900 rounded-full px-8 py-3">
+                    ⟲ Retake Assessment
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. DATA DEFINITIONS ---
+
+        const archetypesData = {
+            A: {
+                id: 'visionary', name: 'Visionary Icon', thai: 'ตัวแม่สายแสง', emoji: '✨',
+                color: '#d97706', // Gold-600
+                motto: "Trust me, I will get us through this. (เชื่อแม่ แม่พาไปรอด)",
+                strength: "Charisma & Storytelling. You inspire action through a compelling vision.",
+                weakness: "Overlooking operational details and execution mechanics."
+            },
+            B: {
+                id: 'driver', name: 'Direct Driver', thai: 'ตัวแม่สายฟาด', emoji: '⚡',
+                color: '#be185d', // Pink-700
+                motto: "I'm not fierce, I just speak the truth. (ไม่ได้ดุ แค่พูดความจริง)",
+                strength: "Radical Candor & Execution. You clear obstacles and get things done fast.",
+                weakness: "Can cause team burnout or erode psychological safety if too blunt."
+            },
+            C: {
+                id: 'nurturer', name: 'Nurturing Supporter', thai: 'คุณแม่สายซัพ', emoji: '❤️',
+                color: '#16a34a', // Green-600
+                motto: "Have you eaten? You can tell me anything. (กินข้าวยังลูก? มีอะไรบอกแม่ได้นะ)",
+                strength: "Empathy & Psychological Safety. You are the team's emotional anchor.",
+                weakness: "Conflict avoidance and struggling to make unpopular decisions."
+            },
+            D: {
+                id: 'veteran', name: 'Veteran Strategist', thai: 'มนุษย์ป้าขาเก๋า', emoji: '📜',
+                color: '#7e22ce', // Purple-700
+                motto: "I have bathed in hot water before you. (ป้าอาบน้ำร้อนมาก่อน)",
+                strength: "Institutional Wisdom & Crisis Mgmt. You provide extreme stability.",
+                weakness: "Resistance to rapid change and new methodologies."
+            },
+            E: {
+                id: 'sponsor', name: 'Golden Sponsor', thai: 'เจ๊ดันสาย Connect', emoji: '🤝',
+                color: '#ea580c', // Orange-600
+                motto: "Let me handle them for you. (เดี๋ยวเจ๊เคลียร์ให้)",
+                strength: "Influence & Network. You navigate politics to secure resources for your team.",
+                weakness: "Over-reliance on personal relationships rather than scalable processes."
+            },
+            F: {
+                id: 'tech', name: 'Agile Trendsetter', thai: 'ตัวแม่สาย Tech', emoji: '🚀',
+                color: '#0891b2', // Cyan-600
+                motto: "The world changes, we must be better. (โลกเปลี่ยน เราต้องปังกว่าเดิม)",
+                strength: "Innovation & Digital Agility. You drive the team toward the future.",
+                weakness: "Leaving slower-paced team members behind."
+            }
+        };
+
+        const questions = [
+            {
+                category: "1. The Crisis (เมื่อวิกฤตมาเยือน)",
+                text: "Your team made a critical mistake, and the client is furious. What is your immediate move?",
+                options: [
+                    { type: 'A', text: "Step in front, take the heat, and use soft power/charisma to de-escalate.<br><span class='text-gray-500 text-sm'>(ออกรับหน้า ใช้ทักษะเจรจาลดความตึงเครียด)</span>" },
+                    { type: 'B', text: "Identify the root cause immediately, fix it, and give direct feedback to the team.<br><span class='text-gray-500 text-sm'>(หา Root Cause แก้ไข และ Feedback ตรงๆ)</span>" },
+                    { type: 'C', text: "Check on the team’s mental state first. Provide psychological safety.<br><span class='text-gray-500 text-sm'>(เช็คสภาพจิตใจทีมก่อน สร้างความปลอดภัยทางใจ)</span>" },
+                    { type: 'D', text: "Review the contract and compliance policies to determine legal standing.<br><span class='text-gray-500 text-sm'>(กลับไปดูสัญญาและระเบียบ เพื่อประเมินข้อเท็จจริง)</span>" },
+                    { type: 'E', text: "Leverage personal connections with client leadership to resolve informally.<br><span class='text-gray-500 text-sm'>(ใช้ Connection ส่วนตัวเจรจาหลังไมค์)</span>" },
+                    { type: 'F', text: "Look for new tech or automated systems to eliminate human error entirely.<br><span class='text-gray-500 text-sm'>(หา Tech Solution มาปิดจุดอ่อนถาวร)</span>" }
+                ]
+            },
+            {
+                category: "2. The Motivation (การสร้างแรงบันดาลใจ)",
+                text: "You need to launch a high-stakes project. How do you rally the team?",
+                options: [
+                    { type: 'A', text: "Paint a vivid picture of success and fame. Sell the 'Dream'.<br><span class='text-gray-500 text-sm'>(ฉายภาพความสำเร็จ ให้ทุกคนอินกับเป้าหมาย)</span>" },
+                    { type: 'B', text: "Set clear KPIs and strict timelines. Focus on execution.<br><span class='text-gray-500 text-sm'>(กำหนด KPI ชัดเจน เน้นลงมือทำเฉียบขาด)</span>" },
+                    { type: 'C', text: "Ensure mental readiness and emphasize that you'll support them.<br><span class='text-gray-500 text-sm'>(เช็คความพร้อม ย้ำว่าจะ Support เต็มที่)</span>" },
+                    { type: 'D', text: "Remind them of our track record and long-term stability.<br><span class='text-gray-500 text-sm'>(ย้ำถึงความสำเร็จอดีต และความมั่นคง)</span>" },
+                    { type: 'E', text: "Say: 'Focus on work, I will handle the politics for you.'<br><span class='text-gray-500 text-sm'>(บอกทีมว่าลุยหน้างาน เดี๋ยวเคลียร์ผู้ใหญ่ให้)</span>" },
+                    { type: 'F', text: "Introduce a cutting-edge methodology or tool to make it exciting.<br><span class='text-gray-500 text-sm'>(นำเสนอ Tools ใหม่ๆ ให้งานดูท้าทาย)</span>" }
+                ]
+            },
+            {
+                category: "3. The Underperformer (การบริหารคน)",
+                text: "A key talent is underperforming due to personal issues.",
+                options: [
+                    { type: 'A', text: "Give an inspiring pep talk to reignite their passion.<br><span class='text-gray-500 text-sm'>(ทำ Pep Talk ปลุกไฟให้กลับมาลุกโชน)</span>" },
+                    { type: 'B', text: "Ask directly: 'Can you compartmentalize? Or do you need leave?'<br><span class='text-gray-500 text-sm'>(ถามตรงๆ แยกแยะได้ไหม หรือต้องการพักร้อน)</span>" },
+                    { type: 'C', text: "Listen with empathy. Prioritize family/health; work can wait.<br><span class='text-gray-500 text-sm'>(รับฟังด้วย Empathy ครอบครัวต้องมาก่อน)</span>" },
+                    { type: 'D', text: "Advise on HR policies regarding leave and assistance programs.<br><span class='text-gray-500 text-sm'>(แนะนำสิทธิ์การลาตามระเบียบ HR)</span>" },
+                    { type: 'E', text: "Connect them with a specialist or leverage your network to help.<br><span class='text-gray-500 text-sm'>(ใช้ Network แนะนำคนช่วยแก้ปัญหาเขา)</span>" },
+                    { type: 'F', text: "Suggest a productivity app, podcast, or bio-hack.<br><span class='text-gray-500 text-sm'>(แนะนำ Podcast หรือเทคนิคจัดการชีวิตแบบใหม่)</span>" }
+                ]
+            },
+            {
+                category: "4. The Change (การรับมือความเปลี่ยนแปลง)",
+                text: "The company announces a major restructuring.",
+                options: [
+                    { type: 'A', text: "Craft a narrative: 'Exciting evolution,' not disruption.<br><span class='text-gray-500 text-sm'>(สร้าง Story มองเป็นโอกาสเติบโต)</span>" },
+                    { type: 'B', text: "Analyze logic. Support if efficient, voice concerns if not.<br><span class='text-gray-500 text-sm'>(วิเคราะห์ตรรกะ ถ้าดีก็ลุย ถ้าไม่ดีก็โต้แย้ง)</span>" },
+                    { type: 'C', text: "Focus on 'People Impact,' ensure the team feels secure.<br><span class='text-gray-500 text-sm'>(โฟกัสที่คน ประคองความรู้สึกทีม)</span>" },
+                    { type: 'D', text: "Wait for dust to settle. Stick to proven protocols.<br><span class='text-gray-500 text-sm'>(นิ่งสงบ รอระเบียบชัดเจนค่อยขยับ)</span>" },
+                    { type: 'E', text: "Contact other leaders to align interests and lock resources.<br><span class='text-gray-500 text-sm'>(หาพันธมิตร ล็อคทรัพยากรให้ทีมปลอดภัย)</span>" },
+                    { type: 'F', text: "Embrace it! Time to pivot, innovate, and try new things.<br><span class='text-gray-500 text-sm'>(พร้อม Pivot ลองวิธีทำงานใหม่ทันที)</span>" }
+                ]
+            },
+            {
+                category: "5. The Meeting (พฤติกรรมในที่ประชุม)",
+                text: "How do you usually contribute in a brainstorming session?",
+                options: [
+                    { type: 'A', text: "I provide the 'Big Idea' or the energy that gets everyone excited.<br><span class='text-gray-500 text-sm'>(โยนไอเดียใหญ่ สร้างพลังบวกให้ทีม)</span>" },
+                    { type: 'B', text: "I focus on 'Action Items'—who is doing what and by when?<br><span class='text-gray-500 text-sm'>(โฟกัส Action Plan ใครทำอะไร เสร็จเมื่อไหร่)</span>" },
+                    { type: 'C', text: "I ensure everyone has had a chance to speak and feels heard.<br><span class='text-gray-500 text-sm'>(คอยดูให้ทุกคนได้พูดและมีส่วนร่วม)</span>" },
+                    { type: 'D', text: "I point out what has worked (or failed) in the past.<br><span class='text-gray-500 text-sm'>(แชร์ Case Study ในอดีตเพื่ออุดรอยรั่ว)</span>" },
+                    { type: 'E', text: "I think about who outside this room we need to get on board.<br><span class='text-gray-500 text-sm'>(คิดหาคนที่ต้องไป Connect เพื่อให้งานเดิน)</span>" },
+                    { type: 'F', text: "I propose a digital tool or platform that can do this faster.<br><span class='text-gray-500 text-sm'>(เสนอ Tech/Platform ใหม่ๆ ที่ทุ่นแรงได้)</span>" }
+                ]
+            },
+            {
+                category: "6. The Resource (การขอทรัพยากร)",
+                text: "You need extra budget approval. How do you get it?",
+                options: [
+                    { type: 'A', text: "I make a pitch deck that tells a compelling, emotional story.<br><span class='text-gray-500 text-sm'>(ทำ Pitch Deck เล่า Story เร้าอารมณ์)</span>" },
+                    { type: 'B', text: "I present raw data and ROI. The numbers speak for themselves.<br><span class='text-gray-500 text-sm'>(กาง Data และ ROI คุยด้วยตัวเลขล้วนๆ)</span>" },
+                    { type: 'C', text: "I ask the team what they genuinely need and fight for that.<br><span class='text-gray-500 text-sm'>(ถามสิ่งที่ทีมต้องการจริงๆ และไปสู้มาให้)</span>" },
+                    { type: 'D', text: "I fill out forms perfectly and follow the approval hierarchy.<br><span class='text-gray-500 text-sm'>(ทำเอกสารเป๊ะ เดินตาม Process องค์กร)</span>" },
+                    { type: 'E', text: "I take the approver out for coffee/lunch and settle it informally.<br><span class='text-gray-500 text-sm'>(ชวนคนเซ็นอนุมัติกินข้าว เคลียร์นอกรอบ)</span>" },
+                    { type: 'F', text: "I don't ask for more budget; I find a free AI or software workaround.<br><span class='text-gray-500 text-sm'>(ไม่ของบ แต่หา AI/Tools ฟรีมาใช้แทน)</span>" }
+                ]
+            }
+        ];
+
+        // --- 2. STATE MANAGEMENT ---
+
+        let currentQIndex = 0;
+        let scores = { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 };
+        let radarChartInstance = null;
+
+        // --- 3. APP LOGIC ---
+
+        function getEl(id) { return document.getElementById(id); }
+
+        function startAssessment() {
+            getEl('landing-view').classList.add('hidden');
+            getEl('quiz-view').classList.remove('hidden');
+            getEl('header-progress').classList.remove('hidden');
+            getEl('progress-bar-container').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        // Helper to shuffle options array so 'A' isn't always the first button
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQIndex];
+            
+            // Update Header
+            getEl('header-q-num').innerText = currentQIndex + 1;
+            const percent = ((currentQIndex) / questions.length) * 100;
+            getEl('progress-bar').style.width = percent + '%';
+
+            // Set Content with animation reset
+            const view = getEl('quiz-view');
+            view.classList.remove('fade-in');
+            void view.offsetWidth; // trigger reflow
+            view.classList.add('fade-in');
+
+            getEl('q-category').innerText = q.category;
+            getEl('q-text').innerText = q.text;
+
+            // Generate Options
+            const optsContainer = getEl('options-container');
+            optsContainer.innerHTML = '';
+            
+            // Create a copy and shuffle to avoid bias
+            const shuffledOptions = shuffle([...q.options]);
+
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left bg-white border border-gray-200 rounded-2xl p-5 shadow-sm text-gray-800 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-500";
+                btn.innerHTML = `<div class="text-base md:text-lg">${opt.text}</div>`;
+                btn.onclick = () => handleAnswer(opt.type);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(type) {
+            scores[type]++;
+            currentQIndex++;
+
+            if (currentQIndex < questions.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            getEl('quiz-view').classList.add('hidden');
+            getEl('results-view').classList.remove('hidden');
+            getEl('progress-bar').style.width = '100%';
+
+            // Determine Winner
+            let maxScore = -1;
+            let winnerType = 'A';
+            for (const [type, score] of Object.entries(scores)) {
+                if (score > maxScore) {
+                    maxScore = score;
+                    winnerType = type;
+                }
+            }
+
+            const winnerData = archetypesData[winnerType];
+
+            // Populate DOM
+            getEl('res-name').innerText = winnerData.name;
+            getEl('res-name').style.background = `linear-gradient(to right, ${winnerData.color}, #f472b6)`;
+            getEl('res-name').style.webkitBackgroundClip = 'text';
+            
+            getEl('res-thai').innerText = winnerData.thai;
+            getEl('res-emoji').innerText = winnerData.emoji;
+            getEl('res-motto').innerText = winnerData.motto;
+            getEl('res-strength').innerText = winnerData.strength;
+            getEl('res-weakness').innerText = winnerData.weakness;
+
+            renderRadarChart(winnerData.color);
+        }
+
+        function renderRadarChart(themeColor) {
+            const ctx = document.getElementById('userRadarChart').getContext('2d');
+            
+            // Map scores to chart data in specific order
+            const labels = ['Vision (A)', 'Execution (B)', 'Empathy (C)', 'Wisdom (D)', 'Influence (E)', 'Agility (F)'];
+            const dataPoints = [scores.A, scores.B, scores.C, scores.D, scores.E, scores.F];
+
+            if(radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            Chart.defaults.font.family = "'Kanit', sans-serif";
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Your Leadership Profile',
+                        data: dataPoints,
+                        backgroundColor: themeColor + '33', // 20% opacity
+                        borderColor: themeColor,
+                        pointBackgroundColor: themeColor,
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: themeColor,
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0,0,0,0.1)' },
+                            grid: { color: 'rgba(0,0,0,0.1)' },
+                            pointLabels: { color: '#475569', font: { size: 12, weight: 'bold' } },
+                            ticks: { 
+                                display: false, // hide the 0,1,2,3 numbers on web
+                                min: 0,
+                                max: Math.max(...dataPoints, 3) + 1, // Dynamic scaling based on highest score
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Score: ${context.raw} out of 6`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function resetAssessment() {
+            // Reset State
+            currentQIndex = 0;
+            scores = { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 };
+            
+            // Reset UI
+            getEl('results-view').classList.add('hidden');
+            getEl('header-progress').classList.add('hidden');
+            getEl('progress-bar-container').classList.add('hidden');
+            getEl('progress-bar').style.width = '0%';
+            getEl('landing-view').classList.remove('hidden');
+        }
+
+    </script>
+</body>
+</html>
